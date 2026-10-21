@@ -3,178 +3,226 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="SECOP AI - Analista Inteligente de Licitaciones y Contratación Pública en Colombia">
-  <title>SECOP AI · Analista Inteligente de Licitaciones Estatales</title>
+  <meta name="description" content="SECOP AI · Analista Inteligente de Licitaciones y Contratación Pública en Colombia">
+  <title>SECOP AI · Analista de Licitaciones Estatales</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
 
   <!-- Top Navigation Bar -->
-  <header class="navbar">
+  <header class="navbar" role="banner">
     <div class="nav-brand">
-      <div class="brand-icon">🏛️</div>
+      <div class="brand-icon-box" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 21h18M3 10h18M5 10v11M19 10v11M9 10v11M15 10v11M12 2L2 7h20L12 2z"/>
+        </svg>
+      </div>
       <div class="nav-title">
         <h1>SECOP AI · Analista de Licitaciones</h1>
-        <div class="nav-subtitle">Asesor Autónomo de Contratación Pública (Colombia)</div>
+        <div class="nav-subtitle">Evaluación de Viabilidad y Contratación Pública Estatal</div>
       </div>
     </div>
-    <div class="nav-badges">
-      <div class="badge" title="Trazabilidad activa">
-        <span class="badge-dot"></span>
-        <span>LangSmith Tracing</span>
+    
+    <div class="nav-badges" role="region" aria-label="Estado del sistema">
+      <div class="badge" title="Trazabilidad activa en LangSmith">
+        <span class="badge-dot" aria-hidden="true"></span>
+        <span>LangSmith Live</span>
       </div>
-      <div class="badge badge-purple" id="model-badge">
-        <span>⚡ Claude Haiku 5.5</span>
+      <div class="badge badge-model" id="model-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="4" y="4" width="16" height="16" rx="2"/>
+          <rect x="9" y="9" width="6" height="6"/>
+          <path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/>
+        </svg>
+        <span>Claude Haiku 5.5</span>
       </div>
       <div class="badge" id="dataset-badge">
-        <span>📁 20 Procesos SECOP II</span>
+        <span>20 Procesos Muestra</span>
       </div>
     </div>
   </header>
 
-  <!-- Main Dashboard Grid -->
-  <main class="app-container">
+  <!-- Three-Column Layout -->
+  <main class="app-container" role="main">
 
-    <!-- Left Sidebar: Perfil de la Empresa -->
-    <aside class="panel panel-left" id="panel-empresa" aria-label="Perfil Empresarial">
+    <!-- Left Panel: Corporate Profile & Financial Health Matrix -->
+    <aside class="panel panel-left" id="panel-empresa" aria-label="Perfil Empresarial y RUP">
       <div class="panel-header">
         <div class="panel-title">
-          <span>🏢</span>
-          <span>Nuestra Empresa</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/>
+            <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/>
+            <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/>
+            <path d="M10 6h4M10 10h4M10 14h4M10 18h4"/>
+          </svg>
+          <span>Perfil Empresa</span>
         </div>
-        <span class="badge status-good" style="font-size: 0.65rem;">RUP ACTIVO</span>
+        <span class="kpi-status status-emerald">RUP ACTIVO</span>
       </div>
+      
       <div class="panel-body">
         
+        <!-- Corporate Card -->
         <div class="company-card" id="company-summary">
           <div class="company-name" id="comp-name">Cargando empresa...</div>
           <div class="company-meta">
-            <span id="comp-nit">NIT: ---</span>
-            <span id="comp-city">Cali, Valle</span>
-          </div>
-          <div class="company-meta">
-            <span id="comp-activity" style="color: #cbd5e1;">Ingeniería civil y mantenimiento</span>
+            <span class="company-meta-item" id="comp-nit">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="14" x="3" y="5" rx="2"/><path d="M7 15h4M15 15h2M7 11h2M13 11h4"/></svg>
+              <span>NIT: ---</span>
+            </span>
+            <span class="company-meta-item" id="comp-city">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+              <span>Cali, Valle del Cauca</span>
+            </span>
           </div>
         </div>
 
-        <div class="section-subtitle">Indicadores Financieros Clave</div>
+        <!-- Financial KPI Matrix -->
+        <div class="section-heading">Indicadores Financieros Oficiales</div>
         <div class="kpi-grid">
           <div class="kpi-card" id="kpi-capital">
             <div class="kpi-label">Capital de Trabajo</div>
-            <div class="kpi-value" id="val-capital">$182.0M</div>
-            <span class="kpi-status status-good">Disponible</span>
+            <div class="kpi-value tabular-nums" id="val-capital">$182.0M</div>
+            <span class="kpi-status status-emerald">Disponible</span>
           </div>
           <div class="kpi-card" id="kpi-liquidez">
             <div class="kpi-label">Índice Liquidez</div>
-            <div class="kpi-value" id="val-liquidez">1.70</div>
-            <span class="kpi-status status-good">> 1.5 Saludable</span>
+            <div class="kpi-value tabular-nums" id="val-liquidez">1.70</div>
+            <span class="kpi-status status-emerald">&gt; 1.50 Óptimo</span>
           </div>
           <div class="kpi-card" id="kpi-endeudamiento">
             <div class="kpi-label">Endeudamiento</div>
-            <div class="kpi-value" id="val-endeudamiento">62.0%</div>
-            <span class="kpi-status status-warning">Moderado / Alto</span>
+            <div class="kpi-value tabular-nums" id="val-endeudamiento">62.0%</div>
+            <span class="kpi-status status-amber">Moderado</span>
           </div>
           <div class="kpi-card" id="kpi-cobertura">
-            <div class="kpi-label">Cobertura Intereses</div>
-            <div class="kpi-value" id="val-cobertura">2.50x</div>
-            <span class="kpi-status status-good">Fuerte</span>
+            <div class="kpi-label">Cob. Intereses</div>
+            <div class="kpi-value tabular-nums" id="val-cobertura">2.50x</div>
+            <span class="kpi-status status-emerald">Suficiente</span>
           </div>
         </div>
 
-        <div class="section-subtitle">Códigos UNSPSC Registrados en RUP</div>
+        <!-- UNSPSC Tags -->
+        <div class="section-heading">Clasificación UNSPSC en RUP</div>
         <div class="tags-container" id="unspsc-tags">
-          <!-- Códigos inyectados dinámicamente -->
+          <!-- Inyectados por JavaScript -->
         </div>
 
-        <div class="section-subtitle">Historial de Experiencia (Contratos Previos)</div>
+        <!-- Experience List -->
+        <div class="section-heading">Contratos Previos Certificados</div>
         <div class="exp-list" id="exp-list-container">
-          <!-- Experiencia inyectada dinámicamente -->
+          <!-- Inyectados por JavaScript -->
         </div>
 
       </div>
     </aside>
 
-    <!-- Center: Terminal de Razonamiento del Agente -->
-    <section class="panel chat-panel" id="panel-chat" aria-label="Terminal de Decisión">
+    <!-- Center Panel: Reasoning Engine & Executive Chat -->
+    <section class="panel chat-panel" id="panel-chat" aria-label="Terminal de Análisis y Decisión">
       
-      <!-- Quick Prompt Pills -->
-      <div class="suggestions-bar" id="suggestions-bar">
+      <!-- Quick Action Prompt Pills -->
+      <div class="suggestions-bar" id="suggestions-bar" role="toolbar" aria-label="Consultas predefinidas">
         <button class="prompt-pill" data-prompt="¿Nos conviene presentarnos al proceso FLO-INFRA-SA-MC-007-2025 y por qué?">
-          🎯 ¿Presentarnos a FLO-INFRA-SA-MC-007-2025?
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+          <span>¿Presentarnos a FLO-INFRA-SA-MC-007-2025?</span>
         </button>
         <button class="prompt-pill" data-prompt="¿Qué licitaciones públicas hay en la muestra y cuál tiene mayor presupuesto?">
-          📑 ¿Qué licitaciones públicas hay?
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          <span>¿Qué licitaciones públicas hay?</span>
         </button>
         <button class="prompt-pill" data-prompt="¿Cuánto suma nuestra experiencia en contratos clasificados con el código UNSPSC 81101500?">
-          💰 Experiencia código 81101500
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 6v2M12 16v2"/></svg>
+          <span>Experiencia código UNSPSC 81101500</span>
         </button>
         <button class="prompt-pill" data-prompt="¿Cuál es el plazo de ejecución del proceso SA-004-2023?">
-          ⏱️ Plazo de SA-004-2023
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span>Plazo de SA-004-2023</span>
         </button>
       </div>
 
-      <!-- Chat History -->
+      <!-- Chat History Stream -->
       <div class="chat-history" id="chat-messages" role="log" aria-live="polite">
         
         <!-- Welcome Message -->
         <div class="message-wrapper message-ai">
-          <div class="avatar avatar-ai">🤖</div>
+          <div class="avatar avatar-ai" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a4 4 0 0 1 4 4v1a4 4 0 0 1-4 4 4 4 0 0 1-4-4V6a4 4 0 0 1 4-4Z"/>
+              <path d="M16 14a8 8 0 0 1 8 8H0a8 8 0 0 1 8-8"/>
+            </svg>
+          </div>
           <div class="bubble">
-            <div style="font-weight: 700; margin-bottom: 6px;">¡Hola! Soy tu Agente Analista de Contratación Pública en SECOP II.</div>
-            <p style="color: var(--text-secondary); margin-bottom: 8px;">
-              Tengo cargado el perfil técnico y financiero de nuestra empresa y los procesos del SECOP. Puedo evaluar si nos conviene presentarnos a un contrato (Decisión Go / No-Go), cruzar códigos UNSPSC, calcular suficiencia de capital de trabajo y detectar anomalías en los pliegos.
+            <p><strong>Agente Analista SECOP II listo para consultas.</strong></p>
+            <p style="color: var(--text-secondary);">
+              Dispongo del perfil RUP y financiero de nuestra empresa junto con el dataset de licitaciones públicas. Puedo determinar si nos conviene postularnos mediante una recomendación Go / No-Go, comprobar el capital de trabajo de $182.0M COP, auditar códigos UNSPSC y contrastar los pliegos de condiciones.
             </p>
-            <div style="font-size: 0.8rem; color: var(--accent-cyan);">
-              💡 <em>Haz clic en una de las preguntas sugeridas arriba o selecciona un proceso de la derecha para analizarlo.</em>
+            <div style="font-size: 0.76rem; color: #93c5fd; margin-top: 6px;">
+              Selecciona una consulta sugerida arriba o haz clic en cualquier contrato del explorador lateral para evaluar viabilidad.
             </div>
           </div>
         </div>
 
       </div>
 
-      <!-- Chat Input Area -->
+      <!-- Input Bar (Apple Tactile Feel) -->
       <div class="chat-input-area">
         <form id="chat-form" class="input-box">
           <textarea 
             id="user-input" 
             class="chat-input" 
-            placeholder="Haz una pregunta o pide analizar un contrato SECOP (ej: ¿Podemos postularnos a...)"
+            placeholder="Pregunta o solicita evaluar una licitación estatal (ej: ¿Nos conviene presentarnos al contrato...)"
             rows="1"
             required
+            aria-label="Mensaje para el agente"
           ></textarea>
-          <button type="submit" id="send-btn" class="send-btn" title="Enviar consulta">
-            ➤
+          <button type="submit" id="send-btn" class="send-btn" title="Enviar consulta" aria-label="Enviar consulta">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="22" y1="2" x2="11" y2="13"/>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
           </button>
         </form>
       </div>
 
     </section>
 
-    <!-- Right Panel: Procesos SECOP Explorer -->
-    <aside class="panel panel-right" id="panel-procesos" aria-label="Explorador de Procesos SECOP">
+    <!-- Right Panel: SECOP II Contracts Explorer -->
+    <aside class="panel panel-right" id="panel-procesos" aria-label="Explorador de Licitaciones SECOP II">
       <div class="panel-header">
         <div class="panel-title">
-          <span>📋</span>
-          <span>Procesos SECOP II</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+            <polyline points="10 9 9 9 8 9"/>
+          </svg>
+          <span>Licitaciones SECOP II</span>
         </div>
         <span class="badge" id="proceso-counter">20 contratos</span>
       </div>
+      
       <div class="panel-body">
         
         <div class="process-search">
+          <svg class="search-icon-inside" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
           <input 
             type="text" 
             id="process-search-input" 
             class="search-input" 
-            placeholder="🔍 Buscar por entidad, ciudad o código..."
+            placeholder="Filtrar por código, entidad o ciudad..."
+            aria-label="Filtrar procesos de licitación"
           >
         </div>
 
-        <div class="process-list" id="process-list-container">
-          <!-- Procesos inyectados dinámicamente -->
+        <div class="process-list" id="process-list-container" role="list">
+          <!-- Inyectados por JavaScript con animación escalonada -->
         </div>
 
       </div>
