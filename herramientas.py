@@ -47,10 +47,12 @@ def _resumen(procesos: list[dict]) -> dict:
 
 
 def _filtrar_muestra(entidad, departamento, ciudad, modalidad, texto,
-                     precio_min, precio_max, fecha_desde, fecha_hasta):
+                     precio_min, precio_max, fecha_desde, fecha_hasta, referencia=None):
     procesos = json.loads((DATOS / "secop_muestra.json").read_text(encoding="utf-8"))
     res = []
     for p in procesos:
+        if referencia and _norm(referencia) not in (_norm(p.get("referencia_del_proceso")) + " " + _norm(p.get("id_del_proceso"))):
+            continue
         if entidad and _norm(entidad) not in _norm(p.get("entidad")):
             continue
         if departamento and _norm(departamento) not in _norm(p.get("departamento_entidad")):
@@ -59,8 +61,10 @@ def _filtrar_muestra(entidad, departamento, ciudad, modalidad, texto,
             continue
         if modalidad and _norm(modalidad) not in _norm(p.get("modalidad_de_contratacion")):
             continue
-        if texto and _norm(texto) not in _norm(p.get("descripci_n_del_procedimiento")):
-            continue
+        if texto:
+            texto_busqueda = f"{p.get('descripci_n_del_procedimiento', '')} {p.get('referencia_del_proceso', '')} {p.get('id_del_proceso', '')}"
+            if _norm(texto) not in _norm(texto_busqueda):
+                continue
         precio = _num(p.get("precio_base"))
         if precio_min is not None and precio < precio_min:
             continue
@@ -76,11 +80,13 @@ def _filtrar_muestra(entidad, departamento, ciudad, modalidad, texto,
 
 
 def _consultar_api(entidad, departamento, ciudad, modalidad, texto,
-                   precio_min, precio_max, fecha_desde, fecha_hasta, limite):
+                   precio_min, precio_max, fecha_desde, fecha_hasta, limite, referencia=None):
     def q(v):  # escapa comillas simples para SoQL
         return str(v).replace("'", "''").upper()
 
     cond = []
+    if referencia:
+        cond.append(f"(upper(referencia_del_proceso) like '%{q(referencia)}%' OR upper(id_del_proceso) like '%{q(referencia)}%')")
     if entidad:
         cond.append(f"upper(entidad) like '%{q(entidad)}%'")
     if departamento:
@@ -90,7 +96,7 @@ def _consultar_api(entidad, departamento, ciudad, modalidad, texto,
     if modalidad:
         cond.append(f"upper(modalidad_de_contratacion) like '%{q(modalidad)}%'")
     if texto:
-        cond.append(f"upper(descripci_n_del_procedimiento) like '%{q(texto)}%'")
+        cond.append(f"(upper(descripci_n_del_procedimiento) like '%{q(texto)}%' OR upper(referencia_del_proceso) like '%{q(texto)}%' OR upper(id_del_proceso) like '%{q(texto)}%')")
     if precio_min is not None:
         cond.append(f"precio_base >= {float(precio_min)}")
     if precio_max is not None:
@@ -111,25 +117,26 @@ def _consultar_api(entidad, departamento, ciudad, modalidad, texto,
 
 
 def buscar_procesos(entidad: str = None, departamento: str = None, ciudad: str = None,
-                    modalidad: str = None, texto: str = None,
+                    modalidad: str = None, texto: str = None, referencia: str = None,
                     precio_min: float = None, precio_max: float = None,
                     fecha_desde: str = None, fecha_hasta: str = None,
                     limite: int = 20) -> dict:
     """Busca procesos de contratación del SECOP II.
 
     Usa la muestra local (MODO_DATOS=muestra, por defecto) o la API en vivo (MODO_DATOS=api).
-    Las fechas van en formato AAAA-MM-DD. Devuelve los procesos y un resumen con cantidad,
-    presupuesto total y promedio.
+    Filtros opcionales: referencia (código o referencia del proceso), entidad, departamento,
+    ciudad, modalidad, texto, rango de precio y fechas (AAAA-MM-DD).
+    Devuelve los procesos y un resumen con cantidad, presupuesto total y promedio.
     """
     limite = max(1, min(int(limite or 20), 50))
     args = (entidad, departamento, ciudad, modalidad, texto, precio_min, precio_max, fecha_desde, fecha_hasta)
     if os.getenv("MODO_DATOS", "muestra") == "api":
         try:
-            procesos = _consultar_api(*args, limite)
+            procesos = _consultar_api(*args, limite, referencia=referencia)
         except requests.RequestException as e:
             return {"error": f"No se pudo consultar la API del SECOP: {e}"}
     else:
-        procesos = _filtrar_muestra(*args)[:limite]
+        procesos = _filtrar_muestra(*args, referencia=referencia)[:limite]
     return {"resumen": _resumen(procesos), "procesos": procesos}
 
 

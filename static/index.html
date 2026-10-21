@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SECOP AI - Analista Inteligente de Licitaciones y Contratación Pública en Colombia">
+  <title>SECOP AI · Analista Inteligente de Licitaciones Estatales</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-brand">
+      <div class="brand-icon">🏛️</div>
+      <div class="nav-title">
+        <h1>SECOP AI · Analista de Licitaciones</h1>
+        <div class="nav-subtitle">Asesor Autónomo de Contratación Pública (Colombia)</div>
+      </div>
+    </div>
+    <div class="nav-badges">
+      <div class="badge" title="Trazabilidad activa">
+        <span class="badge-dot"></span>
+        <span>LangSmith Tracing</span>
+      </div>
+      <div class="badge badge-purple" id="model-badge">
+        <span>⚡ Claude Haiku 5.5</span>
+      </div>
+      <div class="badge" id="dataset-badge">
+        <span>📁 20 Procesos SECOP II</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Dashboard Grid -->
+  <main class="app-container">
+
+    <!-- Left Sidebar: Perfil de la Empresa -->
+    <aside class="panel panel-left" id="panel-empresa" aria-label="Perfil Empresarial">
+      <div class="panel-header">
+        <div class="panel-title">
+          <span>🏢</span>
+          <span>Nuestra Empresa</span>
+        </div>
+        <span class="badge status-good" style="font-size: 0.65rem;">RUP ACTIVO</span>
+      </div>
+      <div class="panel-body">
+        
+        <div class="company-card" id="company-summary">
+          <div class="company-name" id="comp-name">Cargando empresa...</div>
+          <div class="company-meta">
+            <span id="comp-nit">NIT: ---</span>
+            <span id="comp-city">Cali, Valle</span>
+          </div>
+          <div class="company-meta">
+            <span id="comp-activity" style="color: #cbd5e1;">Ingeniería civil y mantenimiento</span>
+          </div>
+        </div>
+
+        <div class="section-subtitle">Indicadores Financieros Clave</div>
+        <div class="kpi-grid">
+          <div class="kpi-card" id="kpi-capital">
+            <div class="kpi-label">Capital de Trabajo</div>
+            <div class="kpi-value" id="val-capital">$182.0M</div>
+            <span class="kpi-status status-good">Disponible</span>
+          </div>
+          <div class="kpi-card" id="kpi-liquidez">
+            <div class="kpi-label">Índice Liquidez</div>
+            <div class="kpi-value" id="val-liquidez">1.70</div>
+            <span class="kpi-status status-good">> 1.5 Saludable</span>
+          </div>
+          <div class="kpi-card" id="kpi-endeudamiento">
+            <div class="kpi-label">Endeudamiento</div>
+            <div class="kpi-value" id="val-endeudamiento">62.0%</div>
+            <span class="kpi-status status-warning">Moderado / Alto</span>
+          </div>
+          <div class="kpi-card" id="kpi-cobertura">
+            <div class="kpi-label">Cobertura Intereses</div>
+            <div class="kpi-value" id="val-cobertura">2.50x</div>
+            <span class="kpi-status status-good">Fuerte</span>
+          </div>
+        </div>
+
+        <div class="section-subtitle">Códigos UNSPSC Registrados en RUP</div>
+        <div class="tags-container" id="unspsc-tags">
+          <!-- Códigos inyectados dinámicamente -->
+        </div>
+
+        <div class="section-subtitle">Historial de Experiencia (Contratos Previos)</div>
+        <div class="exp-list" id="exp-list-container">
+          <!-- Experiencia inyectada dinámicamente -->
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- Center: Terminal de Razonamiento del Agente -->
+    <section class="panel chat-panel" id="panel-chat" aria-label="Terminal de Decisión">
+      
+      <!-- Quick Prompt Pills -->
+      <div class="suggestions-bar" id="suggestions-bar">
+        <button class="prompt-pill" data-prompt="¿Nos conviene presentarnos al proceso FLO-INFRA-SA-MC-007-2025 y por qué?">
+          🎯 ¿Presentarnos a FLO-INFRA-SA-MC-007-2025?
+        </button>
+        <button class="prompt-pill" data-prompt="¿Qué licitaciones públicas hay en la muestra y cuál tiene mayor presupuesto?">
+          📑 ¿Qué licitaciones públicas hay?
+        </button>
+        <button class="prompt-pill" data-prompt="¿Cuánto suma nuestra experiencia en contratos clasificados con el código UNSPSC 81101500?">
+          💰 Experiencia código 81101500
+        </button>
+        <button class="prompt-pill" data-prompt="¿Cuál es el plazo de ejecución del proceso SA-004-2023?">
+          ⏱️ Plazo de SA-004-2023
+        </button>
+      </div>
+
+      <!-- Chat History -->
+      <div class="chat-history" id="chat-messages" role="log" aria-live="polite">
+        
+        <!-- Welcome Message -->
+        <div class="message-wrapper message-ai">
+          <div class="avatar avatar-ai">🤖</div>
+          <div class="bubble">
+            <div style="font-weight: 700; margin-bottom: 6px;">¡Hola! Soy tu Agente Analista de Contratación Pública en SECOP II.</div>
+            <p style="color: var(--text-secondary); margin-bottom: 8px;">
+              Tengo cargado el perfil técnico y financiero de nuestra empresa y los procesos del SECOP. Puedo evaluar si nos conviene presentarnos a un contrato (Decisión Go / No-Go), cruzar códigos UNSPSC, calcular suficiencia de capital de trabajo y detectar anomalías en los pliegos.
+            </p>
+            <div style="font-size: 0.8rem; color: var(--accent-cyan);">
+              💡 <em>Haz clic en una de las preguntas sugeridas arriba o selecciona un proceso de la derecha para analizarlo.</em>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Chat Input Area -->
+      <div class="chat-input-area">
+        <form id="chat-form" class="input-box">
+          <textarea 
+            id="user-input" 
+            class="chat-input" 
+            placeholder="Haz una pregunta o pide analizar un contrato SECOP (ej: ¿Podemos postularnos a...)"
+            rows="1"
+            required
+          ></textarea>
+          <button type="submit" id="send-btn" class="send-btn" title="Enviar consulta">
+            ➤
+          </button>
+        </form>
+      </div>
+
+    </section>
+
+    <!-- Right Panel: Procesos SECOP Explorer -->
+    <aside class="panel panel-right" id="panel-procesos" aria-label="Explorador de Procesos SECOP">
+      <div class="panel-header">
+        <div class="panel-title">
+          <span>📋</span>
+          <span>Procesos SECOP II</span>
+        </div>
+        <span class="badge" id="proceso-counter">20 contratos</span>
+      </div>
+      <div class="panel-body">
+        
+        <div class="process-search">
+          <input 
+            type="text" 
+            id="process-search-input" 
+            class="search-input" 
+            placeholder="🔍 Buscar por entidad, ciudad o código..."
+          >
+        </div>
+
+        <div class="process-list" id="process-list-container">
+          <!-- Procesos inyectados dinámicamente -->
+        </div>
+
+      </div>
+    </aside>
+
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

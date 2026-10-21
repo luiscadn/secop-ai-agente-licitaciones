@@ -5,6 +5,7 @@ Cambien MODELO o el prompt en .env/agente.py, ejecuten de nuevo con otro nombre 
 los dos experimentos en LangSmith (precisión, costo y latencia).
 """
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -43,7 +44,8 @@ def uso_herramientas(inputs: dict, outputs: dict, reference_outputs: dict) -> di
 
 
 # 4. Modelo como juez: ¿la respuesta coincide con la esperada?
-juez = init_chat_model("anthropic:claude-haiku-5-5", temperature=0)
+juez = init_chat_model(os.getenv("MODELO", "anthropic:claude-haiku-5-5"))
+
 
 
 def respuesta_correcta(inputs: dict, outputs: dict, reference_outputs: dict) -> dict:
