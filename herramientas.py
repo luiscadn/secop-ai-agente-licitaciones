@@ -130,7 +130,44 @@ def buscar_procesos(entidad: str = None, departamento: str = None, ciudad: str =
     """
     limite = max(1, min(int(limite or 20), 50))
     args = (entidad, departamento, ciudad, modalidad, texto, precio_min, precio_max, fecha_desde, fecha_hasta)
-    if os.getenv("MODO_DATOS", "muestra") == "api":
+    
+    modo = os.getenv("MODO_DATOS", "sqlite")
+    if modo == "sqlite":
+        try:
+            import db_secop
+            db_secop.init_db()
+            if db_secop.contar_procesos() > 0:
+                filas = db_secop.buscar_procesos_db(
+                    texto=texto, entidad=entidad, departamento=departamento,
+                    ciudad=ciudad, modalidad=modalidad, referencia=referencia,
+                    precio_min=precio_min, precio_max=precio_max,
+                    fecha_desde=fecha_desde, fecha_hasta=fecha_hasta,
+                    limite=limite
+                )
+                std_procesos = []
+                for p in filas:
+                    std_procesos.append({
+                        "referencia_del_proceso": p["referencia"],
+                        "id_del_proceso": p["id_proceso"],
+                        "entidad": p["entidad"],
+                        "departamento_entidad": p["departamento"],
+                        "ciudad_entidad": p["ciudad"],
+                        "modalidad_de_contratacion": p["modalidad"],
+                        "descripci_n_del_procedimiento": p["objeto"],
+                        "precio_base": p["precio_base"],
+                        "duracion": str(p["duracion"]),
+                        "unidad_de_duracion": p["unidad_duracion"],
+                        "estado_resumen": p["estado"],
+                        "codigo_principal_de_categoria": f"V1.{p['codigo_unspsc']}" if p["codigo_unspsc"] else "",
+                        "fecha_de_publicacion_del": p["fecha_publicacion"],
+                        "urlproceso": {"url": p["url_secop"]}
+                    })
+                return {"resumen": _resumen(std_procesos), "procesos": std_procesos}
+        except Exception:
+            # Fallback a muestra local si ocurre algún imprevisto con SQLite
+            pass
+        procesos = _filtrar_muestra(*args, referencia=referencia)[:limite]
+    elif modo == "api":
         try:
             procesos = _consultar_api(*args, limite, referencia=referencia)
         except requests.RequestException as e:
