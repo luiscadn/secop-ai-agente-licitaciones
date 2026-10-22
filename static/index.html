@@ -3,194 +3,235 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="SECOP AI · Analista Inteligente de Licitaciones Estatales y Contratación Pública en Colombia">
-  <title>SECOP AI · Analista Inteligente de Licitaciones</title>
+  <meta name="description" content="SECOP AI · Espacio de Decisión y Copiloto Contextual de Licitaciones Estatales">
+  <title>SECOP AI · Decision-Driven Workspace</title>
   
   <!-- Modern Clean Sans-Serif: Plus Jakarta Sans & Geist Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/styles.css">
+  <link rel="stylesheet" href="/static/styles.css?v=3">
 </head>
 <body>
 
-  <div class="stoika-wrapper">
+  <div class="app-shell">
 
-    <!-- Stoika Floating Capsule Navbar -->
-    <header class="stoika-navbar" role="banner">
-      <div class="nav-brand-group">
-        <span class="brand-logo-text">SECOP AI</span>
-        <span class="brand-tagline">Analista de Contratación Pública</span>
+    <!-- Global Condensed Header -->
+    <header class="global-header" role="banner">
+      <div class="header-left">
+        <div class="brand-badge">
+          <span>SECOP AI</span>
+          <span class="sub">Copiloto</span>
+        </div>
+
+        <!-- Global Quick Filters / Triage Selector -->
+        <nav class="triage-filter-pills" role="navigation" aria-label="Filtros de viabilidad">
+          <button class="filter-pill active" data-filter="all">
+            <span class="filter-dot dot-all"></span>
+            <span>Todos</span>
+            <span id="count-all">(20)</span>
+          </button>
+          <button class="filter-pill" data-filter="go">
+            <span class="filter-dot dot-go"></span>
+            <span>Viables Go</span>
+            <span id="count-go">(0)</span>
+          </button>
+          <button class="filter-pill" data-filter="review">
+            <span class="filter-dot dot-review"></span>
+            <span>Consorcio</span>
+            <span id="count-review">(0)</span>
+          </button>
+          <button class="filter-pill" data-filter="nogo">
+            <span class="filter-dot dot-nogo"></span>
+            <span>Descartar</span>
+            <span id="count-nogo">(0)</span>
+          </button>
+        </nav>
       </div>
 
-      <div class="nav-center-badges" role="region" aria-label="Estado del sistema">
-        <div class="pill-badge" title="Trazabilidad activa en LangSmith">
-          <span class="pill-dot" aria-hidden="true"></span>
-          <span>LangSmith Live</span>
-        </div>
-        <div class="pill-badge pill-badge-dark" id="model-badge">
-          <span>Claude Haiku 5.5</span>
-        </div>
-        <div class="pill-badge" id="dataset-badge">
-          <span>20 Procesos Muestra</span>
-        </div>
-      </div>
+      <div class="header-right">
+        <!-- Tracked Processes Pill -->
+        <button class="tracking-counter-pill" id="tracking-counter-btn" title="Ver procesos guardados en seguimiento">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+          <span id="tracking-label">Seguimiento</span>
+          <span id="tracking-badge" style="font-family: var(--font-mono);">(0)</span>
+        </button>
 
-      <button class="nav-action-btn" id="nav-action-btn" onclick="document.getElementById('user-input').focus();">
-        <span>Consultar Agente</span>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <line x1="5" y1="12" x2="19" y2="12"/>
-          <polyline points="12 5 19 12 12 19"/>
-        </svg>
-      </button>
+        <!-- Profile Selector Capsule (Opens Slide-over Drawer) -->
+        <button class="company-drawer-trigger" id="open-drawer-btn" aria-label="Abrir perfil de empresa">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+          </svg>
+          <span id="header-company-name">Pacífico S.A.S.</span>
+          <span class="rup-indicator">RUP ACTIVO</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+      </div>
     </header>
 
-    <!-- Master Frame (Dark Organic Olive & Carbon) -->
-    <main class="stoika-frame" role="main">
+    <!-- Master-Detail Workspace Grid (60% Listado / 40% Detalle) -->
+    <main class="workspace-grid" role="main">
 
-      <!-- Left Panel: Corporate Profile & Financial Matrix -->
-      <aside class="panel panel-left" id="panel-empresa" aria-label="Perfil Empresarial y RUP">
-        <div class="panel-header">
-          <div class="panel-title">
+      <!-- Zona Izquierda (58-60%): Tablero de Licitaciones y Triage -->
+      <section class="triage-master-panel" aria-label="Tablero de Licitaciones SECOP II">
+        
+        <div class="triage-panel-header">
+          <div class="triage-search-box">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
-            <span>Perfil Empresa</span>
+            <input 
+              type="text" 
+              id="triage-search-input" 
+              class="triage-search-input" 
+              placeholder="Buscar por entidad, código de proceso, ciudad o palabra clave..."
+              aria-label="Buscar licitaciones"
+            >
           </div>
-          <span class="kpi-status-tag tag-success">RUP ACTIVO</span>
+          <div class="triage-count-summary" id="triage-count-summary">
+            Mostrando 20 procesos
+          </div>
         </div>
+
+        <!-- Scrollable Cards Stream -->
+        <div class="triage-cards-list" id="triage-cards-container" role="list">
+          <!-- Inyectados por JavaScript con semáforo y pre-scoring visual -->
+        </div>
+
+      </section>
+
+      <!-- Zona Derecha (40-42%): Panel de Análisis y Copiloto Contextual -->
+      <section class="copilot-detail-panel" id="copilot-detail-panel" aria-label="Panel de Análisis y Copiloto">
         
-        <div class="panel-body">
-          
-          <!-- Stoika Specimen Card (Light Paper) -->
-          <div class="specimen-card" id="company-summary">
-            <div class="specimen-header">
-              <div class="specimen-name" id="comp-name">Cargando empresa...</div>
-              <span class="pill-detected">detectado</span>
-            </div>
-            
-            <div class="specimen-row">
-              <span>Identificación</span>
-              <span class="specimen-mono" id="comp-nit">NIT: 901.999.999-0</span>
-            </div>
-            
-            <div class="specimen-row">
-              <span>Sede Principal</span>
-              <span id="comp-city" style="font-weight: 500;">Cali, Valle del Cauca</span>
-            </div>
-
-            <div class="specimen-row">
-              <span>Actividad Principal</span>
-              <span id="comp-activity" style="font-size: 0.7rem; color: #555c56;">Ingeniería civil y mantenimiento</span>
-            </div>
+        <!-- Detail Header -->
+        <div class="detail-header">
+          <div class="detail-header-title">
+            <span class="detail-proc-id" id="detail-proc-id">Seleccionando proceso...</span>
+            <span class="detail-entity-name" id="detail-entity-name">Entidad estatal</span>
           </div>
-
-          <!-- Financial Health Matrix -->
-          <div class="section-label">Indicadores Financieros Oficiales</div>
-          <div class="kpi-grid">
-            <div class="kpi-card" id="kpi-capital">
-              <div class="kpi-label">Capital de Trabajo</div>
-              <div class="kpi-value tabular-nums" id="val-capital">$182.0M</div>
-              <span class="kpi-status-tag tag-success">Disponible</span>
-            </div>
-            <div class="kpi-card" id="kpi-liquidez">
-              <div class="kpi-label">Índice Liquidez</div>
-              <div class="kpi-value tabular-nums" id="val-liquidez">1.70</div>
-              <span class="kpi-status-tag tag-success">&gt; 1.50 Óptimo</span>
-            </div>
-            <div class="kpi-card" id="kpi-endeudamiento">
-              <div class="kpi-label">Endeudamiento</div>
-              <div class="kpi-value tabular-nums" id="val-endeudamiento">62.0%</div>
-              <span class="kpi-status-tag tag-warning">Moderado</span>
-            </div>
-            <div class="kpi-card" id="kpi-cobertura">
-              <div class="kpi-label">Cob. Intereses</div>
-              <div class="kpi-value tabular-nums" id="val-cobertura">2.50x</div>
-              <span class="kpi-status-tag tag-success">Suficiente</span>
-            </div>
+          <div class="detail-header-actions" id="detail-header-actions">
+            <!-- Badges contextuales -->
           </div>
-
-          <!-- UNSPSC Tags -->
-          <div class="section-label">Clasificación UNSPSC en RUP</div>
-          <div class="tags-container" id="unspsc-tags">
-            <!-- Inyectados por JavaScript -->
-          </div>
-
-          <!-- Certified Experience -->
-          <div class="section-label">Contratos Previos Certificados</div>
-          <div class="exp-list" id="exp-list-container">
-            <!-- Inyectados por JavaScript -->
-          </div>
-
-        </div>
-      </aside>
-
-      <!-- Center Panel: Reasoning Terminal & Executive Chat -->
-      <section class="panel chat-panel" id="panel-chat" aria-label="Terminal de Análisis y Decisión">
-        
-        <!-- Suggestions Bar -->
-        <div class="suggestions-bar" id="suggestions-bar" role="toolbar" aria-label="Consultas predefinidas">
-          <button class="prompt-pill" data-prompt="¿Nos conviene presentarnos al proceso FLO-INFRA-SA-MC-007-2025 y por qué?">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-            <span>¿Presentarnos a FLO-INFRA-SA-MC-007-2025?</span>
-          </button>
-          <button class="prompt-pill" data-prompt="¿Qué licitaciones públicas hay en la muestra y cuál tiene mayor presupuesto?">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            <span>¿Qué licitaciones públicas hay?</span>
-          </button>
-          <button class="prompt-pill" data-prompt="¿Cuánto suma nuestra experiencia en contratos clasificados con el código UNSPSC 81101500?">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 6v2M12 16v2"/></svg>
-            <span>Experiencia código UNSPSC 81101500</span>
-          </button>
-          <button class="prompt-pill" data-prompt="¿Cuál es el plazo de ejecución del proceso SA-004-2023?">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <span>Plazo de SA-004-2023</span>
-          </button>
         </div>
 
-        <!-- Chat History Stream -->
-        <div class="chat-history" id="chat-messages" role="log" aria-live="polite">
+        <!-- Detail Body -->
+        <div class="detail-body" id="detail-body">
           
-          <!-- Editorial Welcome Message (Specimen Paper Card) -->
-          <div class="message-wrapper message-ai">
-            <div class="avatar avatar-ai" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 2a4 4 0 0 1 4 4v1a4 4 0 0 1-4 4 4 4 0 0 1-4-4V6a4 4 0 0 1 4-4Z"/>
-                <path d="M16 14a8 8 0 0 1 8 8H0a8 8 0 0 1 8-8"/>
+          <!-- Bloque A: Resumen Ejecutivo y Matriz Habilitante -->
+          <div class="verdict-hero-card" id="verdict-hero-card">
+            
+            <div class="verdict-header-badge">
+              <span class="verdict-title-tag verdict-go" id="verdict-title-tag">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+                <span id="verdict-title-text">Cargando evaluación...</span>
+              </span>
+              <span class="score-pct-circle" id="verdict-score-pct">92% Match</span>
+            </div>
+
+            <p class="verdict-summary-p" id="verdict-summary-p">
+              Evaluando requerimientos del pliego contra el capital de trabajo de $182.0M COP, índices financieros y códigos UNSPSC en RUP.
+            </p>
+
+            <!-- Checklist Visual de Requisitos Habilitantes -->
+            <div class="checklist-container" id="checklist-container">
+              <!-- Item 1: Capacidad Financiera -->
+              <div class="checklist-item" id="check-item-financial">
+                <div class="check-icon-badge check-ok" id="icon-financial">✔</div>
+                <div class="check-content">
+                  <div class="check-label">Capacidad Financiera y Capital de Trabajo</div>
+                  <div class="check-detail" id="desc-financial">Capital disponible de $182.0M cubre los requerimientos de liquidez.</div>
+                </div>
+              </div>
+
+              <!-- Item 2: Clasificación UNSPSC -->
+              <div class="checklist-item" id="check-item-unspsc">
+                <div class="check-icon-badge check-ok" id="icon-unspsc">✔</div>
+                <div class="check-content">
+                  <div class="check-label">Clasificación UNSPSC en RUP</div>
+                  <div class="check-detail" id="desc-unspsc">Código registrado activamente en el perfil empresarial.</div>
+                </div>
+              </div>
+
+              <!-- Item 3: Experiencia Contractual -->
+              <div class="checklist-item" id="check-item-experience">
+                <div class="check-icon-badge check-ok" id="icon-experience">✔</div>
+                <div class="check-content">
+                  <div class="check-label">Experiencia Contractual Acreditada</div>
+                  <div class="check-detail" id="desc-experience">Suficiencia acreditada en contratos afines en vías y mantenimiento.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Micro-conversiones / Acciones de Alto Valor -->
+            <div class="action-buttons-group">
+              <button class="btn-micro btn-download" id="btn-download-matrix" title="Descargar resumen o imprimir ficha de viabilidad">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                <span>Ficha PDF</span>
+              </button>
+
+              <a class="btn-micro btn-secop" id="btn-open-secop" href="#" target="_blank" rel="noopener noreferrer" title="Ver expediente oficial en SECOP II">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                  <polyline points="15 3 21 3 21 9"/>
+                  <line x1="10" y1="14" x2="21" y2="3"/>
+                </svg>
+                <span>En SECOP II</span>
+              </a>
+
+              <button class="btn-micro btn-track" id="btn-toggle-track" title="Guardar proceso en lista de seguimiento">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+                <span id="btn-track-label">Seguimiento</span>
+              </button>
+            </div>
+
+          </div>
+
+          <!-- Bloque B: Copiloto Interactivo (Chat Contextualizado) -->
+          <div class="copilot-chat-section">
+            <div class="copilot-section-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
               </svg>
+              <span>Copiloto de Pliegos · Preguntas Específicas</span>
             </div>
-            <div class="bubble">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <span style="font-family: var(--font-display); font-size: 0.98rem; font-weight: 700; color: var(--c-ink); letter-spacing: -0.01em;">
-                  Analista Inteligente de Licitaciones Estatales
-                </span>
-                <span class="pill-detected">activo</span>
-              </div>
-              <p>
-                He indexado el perfil RUP y financiero de nuestra empresa junto con el dataset de licitaciones públicas de SECOP II. Puedo evaluar viabilidad mediante recomendaciones Go / No-Go, comprobar el capital de trabajo de $182.0M COP, auditar códigos UNSPSC y contrastar los pliegos de condiciones.
-              </p>
-              <div style="font-size: 0.78rem; color: var(--c-olive); font-weight: 500; margin-top: 8px;">
-                Selecciona una consulta sugerida arriba o haz clic en cualquier contrato del explorador lateral para evaluar viabilidad.
-              </div>
+
+            <!-- Contextual Quick Action Pills -->
+            <div class="contextual-pills" id="contextual-pills-bar">
+              <!-- Generadas dinámicamente según el proceso activo -->
+            </div>
+
+            <!-- Messages Stream -->
+            <div class="contextual-chat-stream" id="contextual-chat-stream">
+              <!-- Conversación contextual inyectada aquí -->
             </div>
           </div>
 
         </div>
 
-        <!-- Floating Pill Chat Input -->
-        <div class="chat-input-area">
-          <form id="chat-form" class="input-box">
-            <textarea 
-              id="user-input" 
-              class="chat-input" 
-              placeholder="Escribe una consulta sobre pliegos, códigos UNSPSC o viabilidad financiera..."
-              rows="1"
+        <!-- Chat Input Bar inside Copilot -->
+        <div class="copilot-input-bar">
+          <form id="copilot-form" class="copilot-input-box">
+            <input 
+              type="text" 
+              id="copilot-input" 
+              placeholder="Haz una pregunta específica sobre este proceso o pliego..." 
               required
-              aria-label="Mensaje para el agente"
-            ></textarea>
-            <button type="submit" id="send-btn" class="send-btn" title="Enviar consulta" aria-label="Enviar consulta">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              aria-label="Pregunta al copiloto sobre este proceso"
+            >
+            <button type="submit" id="copilot-send-btn" class="copilot-send-btn" aria-label="Enviar pregunta">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <line x1="22" y1="2" x2="11" y2="13"/>
                 <polygon points="22 2 15 22 11 13 2 9 22 2"/>
               </svg>
@@ -200,48 +241,92 @@
 
       </section>
 
-      <!-- Right Panel: SECOP II Contracts Explorer -->
-      <aside class="panel panel-right" id="panel-procesos" aria-label="Explorador de Licitaciones SECOP II">
-        <div class="panel-header">
-          <div class="panel-title">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-              <polyline points="14 2 14 8 20 8"/>
-              <line x1="16" y1="13" x2="8" y2="13"/>
-              <line x1="16" y1="17" x2="8" y2="17"/>
-            </svg>
-            <span>Licitaciones SECOP II</span>
-          </div>
-          <span class="pill-badge" id="proceso-counter" style="color: var(--c-ivory); background: var(--c-carbon); border-color: var(--c-line-dark);">20 contratos</span>
-        </div>
-        
-        <div class="panel-body">
-          
-          <div class="process-search">
-            <svg class="search-icon-inside" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <circle cx="11" cy="11" r="8"/>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
-            <input 
-              type="text" 
-              id="process-search-input" 
-              class="search-input" 
-              placeholder="Buscar por código, entidad o ciudad..."
-              aria-label="Filtrar procesos de licitación"
-            >
-          </div>
-
-          <div class="process-list" id="process-list-container" role="list">
-            <!-- Inyectados por JavaScript con animación escalonada -->
-          </div>
-
-        </div>
-      </aside>
-
     </main>
+
+    <!-- Slide-Over Drawer: Perfil Empresarial y RUP -->
+    <div class="drawer-backdrop" id="drawer-backdrop">
+      <div class="drawer-panel" id="drawer-panel" role="dialog" aria-modal="true" aria-label="Perfil Empresarial y RUP">
+        
+        <div class="drawer-header">
+          <div class="drawer-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+            </svg>
+            <span>Perfil Empresarial &amp; RUP</span>
+          </div>
+          <button class="drawer-close-btn" id="close-drawer-btn" aria-label="Cerrar panel">✕</button>
+        </div>
+
+        <div class="drawer-body">
+          
+          <!-- Corporate Specimen Card -->
+          <div class="specimen-card">
+            <div class="specimen-name" id="drawer-comp-name">Ingeniería y Mantenimiento del Pacífico S.A.S.</div>
+            <div class="specimen-row">
+              <span>Identificación</span>
+              <span class="specimen-mono" id="drawer-comp-nit">NIT: 901.999.999-0</span>
+            </div>
+            <div class="specimen-row">
+              <span>Sede Principal</span>
+              <span id="drawer-comp-city">Cali, Valle del Cauca</span>
+            </div>
+            <div class="specimen-row">
+              <span>Actividad RUP</span>
+              <span id="drawer-comp-activity" style="font-size: 0.7rem; color: #555c56;">Obras civiles y mantenimiento</span>
+            </div>
+          </div>
+
+          <!-- Financial KPIs Matrix -->
+          <div class="section-label" style="font-size: 0.68rem; font-weight: 700; color: var(--c-bronze); text-transform: uppercase;">
+            Indicadores Financieros Registrados
+          </div>
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-label">Capital de Trabajo</div>
+              <div class="kpi-value tabular-nums" id="drawer-val-capital">$182.0M</div>
+              <span class="kpi-status-tag tag-success">Disponible</span>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Índice Liquidez</div>
+              <div class="kpi-value tabular-nums" id="drawer-val-liquidez">1.70</div>
+              <span class="kpi-status-tag tag-success">&gt; 1.50 Óptimo</span>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Endeudamiento</div>
+              <div class="kpi-value tabular-nums" id="drawer-val-endeudamiento">62.0%</div>
+              <span class="kpi-status-tag tag-warning">Moderado</span>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Cob. Intereses</div>
+              <div class="kpi-value tabular-nums" id="drawer-val-cobertura">2.50x</div>
+              <span class="kpi-status-tag tag-success">Suficiente</span>
+            </div>
+          </div>
+
+          <!-- UNSPSC Tags in Drawer -->
+          <div class="section-label" style="font-size: 0.68rem; font-weight: 700; color: var(--c-bronze); text-transform: uppercase;">
+            Códigos UNSPSC Activos en RUP
+          </div>
+          <div class="tags-container" id="drawer-unspsc-tags">
+            <!-- Inyectados por JS -->
+          </div>
+
+          <!-- Certified Experience in Drawer -->
+          <div class="section-label" style="font-size: 0.68rem; font-weight: 700; color: var(--c-bronze); text-transform: uppercase;">
+            Experiencia Contractual Certificada
+          </div>
+          <div class="exp-list" id="drawer-exp-list">
+            <!-- Inyectados por JS -->
+          </div>
+
+        </div>
+
+      </div>
+    </div>
 
   </div>
 
-  <script src="/static/app.js"></script>
+  <script src="/static/app.js?v=3"></script>
 </body>
 </html>
