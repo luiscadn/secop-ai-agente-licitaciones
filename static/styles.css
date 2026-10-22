@@ -27,9 +27,9 @@
   --c-danger: #c05c54;
   --c-danger-bg: rgba(192, 92, 84, 0.16);
 
-  /* Typography */
-  --font-display: "Funnel Display", "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-body: "Funnel Sans", "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  /* Typography - Photography Studio & Gallery Editorial System */
+  --font-display: "Cormorant Garamond", "Playfair Display", Garamond, Georgia, serif;
+  --font-body: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
   /* Geometry & Radius */
@@ -141,18 +141,20 @@ html, body {
 
 .brand-logo-text {
   font-family: var(--font-display);
-  font-size: 1.25rem;
-  font-weight: 700;
-  letter-spacing: -0.04em;
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   color: var(--c-ink);
   text-transform: uppercase;
 }
 
 .brand-tagline {
-  font-size: 0.76rem;
-  font-weight: 500;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-style: italic;
+  font-weight: 400;
   color: var(--c-olive);
-  letter-spacing: -0.01em;
+  letter-spacing: 0.02em;
 }
 
 .nav-center-badges {
@@ -270,9 +272,9 @@ html, body {
 
 .panel-title {
   font-family: var(--font-display);
-  font-size: 0.88rem;
+  font-size: 1.12rem;
   font-weight: 600;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.04em;
   color: var(--c-ivory);
   display: flex;
   align-items: center;
@@ -295,12 +297,12 @@ html, body {
 }
 
 .section-label {
-  font-family: var(--font-display);
-  font-size: 0.72rem;
+  font-family: var(--font-body);
+  font-size: 0.64rem;
   font-weight: 600;
   color: var(--c-bronze);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.14em;
   margin-top: 4px;
 }
 
@@ -330,9 +332,9 @@ html, body {
 
 .specimen-name {
   font-family: var(--font-display);
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: -0.03em;
+  font-size: 1.28rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
   line-height: 1.25;
   color: var(--c-ink);
 }
@@ -405,19 +407,20 @@ html, body {
 }
 
 .kpi-label {
-  font-size: 0.68rem;
-  font-weight: 500;
+  font-family: var(--font-body);
+  font-size: 0.64rem;
+  font-weight: 600;
   color: var(--c-bronze);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
 }
 
 .kpi-value {
   font-family: var(--font-display);
-  font-size: 1.15rem;
-  font-weight: 700;
+  font-size: 1.35rem;
+  font-weight: 600;
   color: var(--c-ivory);
-  letter-spacing: -0.03em;
+  letter-spacing: 0.01em;
 }
 
 .kpi-status-tag {
@@ -667,7 +670,9 @@ html, body {
 .message-ai .bubble strong {
   color: var(--c-ink);
   font-family: var(--font-display);
-  font-weight: 700;
+  font-size: 1.16rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 .message-ai .bubble p {
@@ -693,13 +698,13 @@ html, body {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 14px;
+  padding: 5px 14px;
   border-radius: var(--r-pill);
-  font-family: var(--font-display);
-  font-size: 0.76rem;
-  font-weight: 700;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.08em;
   margin-bottom: 12px;
 }
 
@@ -942,10 +947,10 @@ html, body {
 
 .process-budget {
   font-family: var(--font-display);
-  font-size: 0.92rem;
-  font-weight: 700;
+  font-size: 1.15rem;
+  font-weight: 600;
   color: #ffffff;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.01em;
 }
 
 .process-tags {
