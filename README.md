@@ -155,7 +155,8 @@ Luego abrir el navegador en la siguiente direccion:
 http://127.0.0.1:8000
 
 Arquitectura de la interfaz:
-- Header global con capsula de perfil empresarial RUP que despliega un panel lateral deslizante, liberando el area de trabajo principal.
+- Header global con selector de sincronizacion SECOP II, contador de procesos en seguimiento y capsula de perfil empresarial RUP que despliega un panel lateral deslizante, liberando el area de trabajo principal.
+- Centro de datos interactivo con estado de ingesta en vivo, disparo manual protegido con clave administrativa y explorador de busqueda full-text FTS5 con medicion de latencia en milisegundos.
 - Tablero de triage a la izquierda que ocupa el 58 por ciento de la pantalla con pre-calificacion visual mediante semaforo en verde para viable, ambar para consorcio y rojo para descartar, junto con la explicacion de viabilidad en una sola linea.
 - Panel de decision y copiloto a la derecha que ocupa el 42 por ciento con veredicto, lista de verificacion de capacidad financiera, clasificacion UNSPSC y experiencia previa certificada.
 - Acciones de salida de alto valor como exportar ficha en PDF, abrir enlace oficial en SECOP II y anadir a seguimiento.

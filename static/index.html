@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/styles.css?v=5">
+  <link rel="stylesheet" href="/static/styles.css?v=6">
 </head>
 <body>
 
@@ -50,6 +50,18 @@
       </div>
 
       <div class="header-right">
+        <!-- Sync Status, Trigger & FTS5 Center Pill -->
+        <button class="sync-status-pill" id="open-sync-modal-btn" title="Estado de Sincronización, Disparo Manual y FTS5">
+          <span class="sync-live-dot" id="sync-live-dot"></span>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+          <span class="sync-pill-text">Sincronización</span>
+          <span class="sync-badge" id="sync-header-badge">50 Proc.</span>
+        </button>
+
         <!-- Tracked Processes Pill -->
         <button class="tracking-counter-pill" id="tracking-counter-btn" title="Ver procesos guardados en seguimiento">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -476,11 +488,211 @@
 
         </div>
 
+    <!-- ==================================================================== -->
+    <!-- MODAL: CENTRO DE DATOS SECOP II · ESTADO, DISPARO MANUAL Y FTS5    -->
+    <!-- ==================================================================== -->
+    <div class="sync-modal-backdrop" id="sync-modal-backdrop" aria-hidden="true" role="dialog" aria-modal="true">
+      <div class="sync-modal-dialog">
+        
+        <!-- Modal Header -->
+        <div class="sync-modal-header">
+          <div class="sync-modal-title-group">
+            <div class="sync-title-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                <path d="M3 3v5h5"/>
+                <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
+                <path d="M16 21h5v-5"/>
+              </svg>
+              <span>SOCRATA &amp; MOTOR FTS5</span>
+            </div>
+            <h2>Centro de Sincronización SECOP II</h2>
+            <p>Ingesta de datos abiertos en tiempo real (p6dx-8zbt) y búsqueda full-text con SQLite.</p>
+          </div>
+          <button class="btn-close-modal" id="close-sync-modal-btn" aria-label="Cerrar modal">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Modal Body Content -->
+        <div class="sync-modal-body">
+
+          <!-- 1. ESTADO DE SINCRONIZACIÓN -->
+          <section class="sync-section">
+            <div class="sync-section-header">
+              <div class="sync-section-title">
+                <span class="sync-section-step">1</span>
+                <span>Estado Actual de Sincronización</span>
+              </div>
+              <button type="button" class="btn-sync-action-link" id="btn-refresh-sync-status">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                </svg>
+                <span>Consultar Estado</span>
+              </button>
+            </div>
+
+            <div class="sync-kpi-grid">
+              <div class="sync-kpi-card">
+                <span class="sync-kpi-label">Procesos en SQLite</span>
+                <div class="sync-kpi-value" id="sync-kpi-total">--</div>
+                <span class="sync-kpi-sub">Virtual Table FTS5 Activa</span>
+              </div>
+              <div class="sync-kpi-card">
+                <span class="sync-kpi-label">Frescura de Ingesta</span>
+                <div class="sync-kpi-value" id="sync-kpi-freshness">
+                  <span class="badge-freshness ok">Consultando...</span>
+                </div>
+                <span class="sync-kpi-sub" id="sync-kpi-freshness-sub">Ventana de 12 horas</span>
+              </div>
+              <div class="sync-kpi-card">
+                <span class="sync-kpi-label">Última Ingesta</span>
+                <div class="sync-kpi-value tabular-nums" id="sync-kpi-last-date">--</div>
+                <span class="sync-kpi-sub" id="sync-kpi-time-ago">Sin registro</span>
+              </div>
+              <div class="sync-kpi-card">
+                <span class="sync-kpi-label">Dataset Socrata</span>
+                <div class="sync-kpi-value" id="sync-kpi-dataset">p6dx-8zbt</div>
+                <span class="sync-kpi-sub">Valle del Cauca · Abierto</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- 2. DISPARO MANUAL PROTEGIDO -->
+          <section class="sync-section">
+            <div class="sync-section-header">
+              <div class="sync-section-title">
+                <span class="sync-section-step">2</span>
+                <span>Disparo Manual de Sincronización Protegido</span>
+              </div>
+              <span class="sync-security-badge">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                ADMIN KEY PROTEGIDA
+              </span>
+            </div>
+
+            <form id="sync-trigger-form" class="sync-trigger-form">
+              <div class="sync-form-row">
+                <div class="sync-form-group" style="flex: 1.4;">
+                  <label for="sync-input-admin-key" class="sync-label">
+                    <span>Clave Administrativa (x-admin-key)</span>
+                  </label>
+                  <div class="sync-input-wrapper">
+                    <input 
+                      type="password" 
+                      id="sync-input-admin-key" 
+                      class="sync-input" 
+                      value="secop_admin_2026" 
+                      placeholder="Ingrese clave administrativa..."
+                      autocomplete="off"
+                    >
+                    <button type="button" class="btn-toggle-pwd" id="btn-toggle-sync-pwd" title="Mostrar/ocultar clave">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="sync-form-group" style="flex: 1;">
+                  <label for="sync-select-limit" class="sync-label">Límite de Ingesta</label>
+                  <select id="sync-select-limit" class="sync-select">
+                    <option value="30">30 procesos</option>
+                    <option value="50" selected>50 procesos</option>
+                    <option value="100">100 procesos</option>
+                    <option value="200">200 procesos</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="sync-form-options">
+                <label class="sync-checkbox-label">
+                  <input type="checkbox" id="sync-chk-force">
+                  <span>Forzar sincronización completa (descarga forzada sin filtro de fecha)</span>
+                </label>
+              </div>
+
+              <div class="sync-trigger-actions">
+                <button type="submit" id="btn-execute-sync" class="btn-execute-sync">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                  </svg>
+                  <span>Sincronizar Ahora con Socrata</span>
+                </button>
+              </div>
+
+              <!-- Banner de estado dinámico del disparo -->
+              <div id="sync-action-banner" class="sync-action-banner" style="display: none;"></div>
+            </form>
+          </section>
+
+          <!-- 3. EXPLORADOR DE BÚSQUEDA FTS5 -->
+          <section class="sync-section">
+            <div class="sync-section-header">
+              <div class="sync-section-title">
+                <span class="sync-section-step">3</span>
+                <span>Explorador de Búsqueda FTS5 en la API</span>
+              </div>
+              <span class="sync-fts-pill">BM25 Full-Text Search</span>
+            </div>
+
+            <div class="sync-fts-explorer">
+              <div class="sync-fts-input-row">
+                <input 
+                  type="text" 
+                  id="sync-fts-input" 
+                  class="sync-input" 
+                  placeholder="Escribe términos a buscar: software, nube, interventoria, optimizacion..."
+                >
+                <button type="button" id="btn-run-fts-search" class="btn-run-fts">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                  </svg>
+                  <span>Consultar FTS5</span>
+                </button>
+              </div>
+
+              <!-- Sugerencias rápidas FTS5 -->
+              <div class="sync-fts-chips">
+                <span class="sync-chips-hint">Términos rápidos:</span>
+                <button type="button" class="sync-chip" data-query="software">software</button>
+                <button type="button" class="sync-chip" data-query="inteligencia">inteligencia</button>
+                <button type="button" class="sync-chip" data-query="tecnologia">tecnologia</button>
+                <button type="button" class="sync-chip" data-query="optimizacion">optimizacion</button>
+                <button type="button" class="sync-chip" data-query="mantenimiento">mantenimiento</button>
+                <button type="button" class="sync-chip" data-query="vial">vial</button>
+              </div>
+
+              <!-- Resultados FTS5 en vivo -->
+              <div class="sync-fts-results-wrapper">
+                <div class="sync-fts-results-header">
+                  <span id="sync-fts-results-meta">Haz una consulta para explorar las coincidencias en la tabla virtual SQLite.</span>
+                  <button type="button" id="btn-apply-fts-to-board" class="btn-apply-board" style="display: none;">
+                    Aplicar al Tablero Principal &rarr;
+                  </button>
+                </div>
+                <div id="sync-fts-results-container" class="sync-fts-results-container">
+                  <!-- Inyectado por JS -->
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </div>
+
       </div>
     </div>
 
   </div>
 
-  <script src="/static/app.js?v=5"></script>
+  <script src="/static/app.js?v=6"></script>
 </body>
 </html>

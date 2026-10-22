@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initSearch();
   initTracking();
   initCopilotChat();
+  initSyncCenter();
   loadData();
 });
 
@@ -947,3 +948,326 @@ function initCompanyEditor() {
     }
   });
 }
+
+// ==========================================================================
+// 8. DATA CENTER: SYNC STATUS, PROTECTED TRIGGER & FTS5 EXPLORER
+// ==========================================================================
+
+function initSyncCenter() {
+  const openBtn = document.getElementById("open-sync-modal-btn");
+  const closeBtn = document.getElementById("close-sync-modal-btn");
+  const backdrop = document.getElementById("sync-modal-backdrop");
+  const refreshBtn = document.getElementById("btn-refresh-sync-status");
+  const form = document.getElementById("sync-trigger-form");
+  const adminKeyInput = document.getElementById("sync-input-admin-key");
+  const togglePwdBtn = document.getElementById("btn-toggle-sync-pwd");
+  const limitSelect = document.getElementById("sync-select-limit");
+  const forceChk = document.getElementById("sync-chk-force");
+  const executeBtn = document.getElementById("btn-execute-sync");
+  const actionBanner = document.getElementById("sync-action-banner");
+
+  // FTS5 elements
+  const ftsInput = document.getElementById("sync-fts-input");
+  const ftsBtn = document.getElementById("btn-run-fts-search");
+  const ftsChips = document.querySelectorAll(".sync-chip");
+  const ftsContainer = document.getElementById("sync-fts-results-container");
+  const ftsMeta = document.getElementById("sync-fts-results-meta");
+  const applyBoardBtn = document.getElementById("btn-apply-fts-to-board");
+
+  if (!openBtn || !backdrop) return;
+
+  // Initial status check to update header badge on app startup
+  fetchSyncStatus();
+
+  // Open modal
+  openBtn.addEventListener("click", () => {
+    backdrop.classList.add("open");
+    fetchSyncStatus();
+    // Default FTS5 search on first open if container empty
+    if (!ftsContainer.hasChildNodes() || ftsContainer.children.length === 0) {
+      runFtsSearch(ftsInput.value || "software");
+    }
+  });
+
+  // Close modal
+  closeBtn.addEventListener("click", () => {
+    backdrop.classList.remove("open");
+  });
+
+  backdrop.addEventListener("click", (e) => {
+    if (e.target === backdrop) {
+      backdrop.classList.remove("open");
+    }
+  });
+
+  // ESC key closes modal
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && backdrop.classList.contains("open")) {
+      backdrop.classList.remove("open");
+    }
+  });
+
+  // Password toggle
+  if (togglePwdBtn && adminKeyInput) {
+    togglePwdBtn.addEventListener("click", () => {
+      const isPwd = adminKeyInput.type === "password";
+      adminKeyInput.type = isPwd ? "text" : "password";
+      togglePwdBtn.style.color = isPwd ? "#ffffff" : "#727a74";
+    });
+  }
+
+  // Refresh status button
+  if (refreshBtn) {
+    refreshBtn.addEventListener("click", () => {
+      fetchSyncStatus(true);
+    });
+  }
+
+  // Protected Manual Sync Execution
+  if (form) {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const adminKey = adminKeyInput.value.trim();
+      const limit = parseInt(limitSelect.value) || 50;
+      const force = forceChk.checked;
+
+      if (!adminKey) {
+        showBanner("error", "Por favor ingresa la clave administrativa.");
+        return;
+      }
+
+      // UI Loading state
+      executeBtn.disabled = true;
+      executeBtn.innerHTML = `
+        <span class="sync-spinner" style="display:inline-block; animation: pulseSync 0.8s infinite;">⚡</span>
+        <span>Conectando con Socrata...</span>
+      `;
+      const liveDot = document.getElementById("sync-live-dot");
+      if (liveDot) liveDot.className = "sync-live-dot syncing";
+
+      showBanner("loading", "Sincronizando con SECOP II (p6dx-8zbt)... Descargando contratos abiertos y re-indexando SQLite FTS5.");
+
+      try {
+        const res = await fetch(`/admin/sincronizar?esperar=true&limite=${limit}&forzar=${force}`, {
+          method: "POST",
+          headers: {
+            "x-admin-key": adminKey
+          }
+        });
+
+        const resData = await res.json();
+
+        if (!res.ok) {
+          throw new Error(resData.detail || "Error en la sincronización.");
+        }
+
+        const msg = `Sincronización exitosa: ${resData.nuevos_o_actualizados} procesos procesados en ${resData.tiempo_segundos}s. Total en base de datos: ${resData.total_en_base_datos}. Tablero principal actualizado automáticamente.`;
+        showBanner("success", msg);
+
+        // Refresh metadata and main board
+        await fetchSyncStatus();
+        await loadData();
+
+      } catch (err) {
+        showBanner("error", `Fallo de sincronización: ${err.message}`);
+      } finally {
+        executeBtn.disabled = false;
+        executeBtn.innerHTML = `
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+          <span>Sincronizar Ahora con Socrata</span>
+        `;
+      }
+    });
+  }
+
+  function showBanner(type, text) {
+    if (!actionBanner) return;
+    actionBanner.className = `sync-action-banner ${type}`;
+    actionBanner.textContent = text;
+    actionBanner.style.display = "block";
+  }
+
+  // FTS5 search handlers
+  if (ftsBtn && ftsInput) {
+    ftsBtn.addEventListener("click", () => {
+      runFtsSearch(ftsInput.value);
+    });
+
+    ftsInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        runFtsSearch(ftsInput.value);
+      }
+    });
+  }
+
+  ftsChips.forEach(chip => {
+    chip.addEventListener("click", () => {
+      const q = chip.getAttribute("data-query");
+      if (ftsInput) ftsInput.value = q;
+      runFtsSearch(q);
+    });
+  });
+
+  if (applyBoardBtn) {
+    applyBoardBtn.addEventListener("click", () => {
+      const q = (ftsInput?.value || "").trim();
+      const mainSearch = document.getElementById("triage-search-input");
+      if (mainSearch && q) {
+        mainSearch.value = q;
+        renderTriageList();
+      }
+      backdrop.classList.remove("open");
+    });
+  }
+
+  async function runFtsSearch(query) {
+    const q = (query || "").trim();
+    if (!ftsContainer) return;
+
+    ftsContainer.innerHTML = `
+      <div style="color: #9ba39d; font-size: 0.72rem; padding: 12px; text-align: center;">
+        Consultando tabla virtual SQLite FTS5...
+      </div>
+    `;
+
+    const t0 = performance.now();
+    try {
+      const endpoint = q ? `/api/procesos?q=${encodeURIComponent(q)}&limite=15` : `/api/procesos?limite=15`;
+      const res = await fetch(endpoint);
+      const elapsed = (performance.now() - t0).toFixed(1);
+
+      if (!res.ok) throw new Error("Error en consulta FTS5");
+      const data = await res.json();
+      const list = data.procesos || [];
+
+      if (ftsMeta) {
+        ftsMeta.textContent = `${list.length} resultados encontrados en ${elapsed} ms (SQLite FTS5 BM25)`;
+      }
+
+      if (applyBoardBtn) {
+        applyBoardBtn.style.display = list.length > 0 ? "inline-block" : "none";
+      }
+
+      if (list.length === 0) {
+        ftsContainer.innerHTML = `
+          <div style="color: #727a74; font-size: 0.72rem; padding: 14px; text-align: center;">
+            No se encontraron coincidencias para "${q}". Intenta con otros términos afines.
+          </div>
+        `;
+        return;
+      }
+
+      ftsContainer.innerHTML = "";
+      list.forEach(proc => {
+        const row = document.createElement("div");
+        row.className = "fts-result-row";
+        const ref = proc.referencia_del_proceso || proc.id_del_proceso;
+        const val = parseFloat(proc.precio_base) || 0;
+        const precioFmt = val > 0 ? formatCOP(val) : "$0";
+        const descSnippet = (proc.descripci_n_del_procedimiento || "Sin descripción").substring(0, 95);
+
+        row.innerHTML = `
+          <div class="fts-result-info">
+            <div class="fts-result-title">
+              <span class="fts-result-id">${ref}</span>
+              <span>·</span>
+              <span style="color: #ffffff;">${proc.entidad || "Entidad"}</span>
+              <span style="color: #727a74; font-size: 0.65rem;">(${proc.ciudad_entidad || "Valle"})</span>
+            </div>
+            <div class="fts-result-desc" title="${proc.descripci_n_del_procedimiento || ''}">
+              ${descSnippet}...
+            </div>
+          </div>
+          <div class="fts-result-actions">
+            <span class="fts-result-budget">${precioFmt}</span>
+            <button type="button" class="btn-fts-select" title="Ver en el tablero principal">
+              Ver &rarr;
+            </button>
+          </div>
+        `;
+
+        const selectBtn = row.querySelector(".btn-fts-select");
+        selectBtn.addEventListener("click", () => {
+          // Select and highlight on main board
+          backdrop.classList.remove("open");
+          const target = allProcesses.find(p => (p.referencia_del_proceso || p.id_del_proceso) === ref);
+          if (target) {
+            selectProcess(target);
+          } else {
+            // If not in currently loaded processes, set in main search
+            const mainSearch = document.getElementById("triage-search-input");
+            if (mainSearch) {
+              mainSearch.value = ref;
+              renderTriageList();
+            }
+          }
+        });
+
+        ftsContainer.appendChild(row);
+      });
+
+    } catch (err) {
+      if (ftsMeta) ftsMeta.textContent = "Error al ejecutar consulta FTS5";
+      ftsContainer.innerHTML = `
+        <div style="color: #fb7185; font-size: 0.72rem; padding: 12px; text-align: center;">
+          ${err.message}
+        </div>
+      `;
+    }
+  }
+
+  async function fetchSyncStatus(isUserRefresh = false) {
+    try {
+      const res = await fetch("/admin/estado-sync");
+      if (!res.ok) return;
+      const data = await res.json();
+
+      const totalEl = document.getElementById("sync-kpi-total");
+      const headerBadge = document.getElementById("sync-header-badge");
+      const freshnessEl = document.getElementById("sync-kpi-freshness");
+      const lastDateEl = document.getElementById("sync-kpi-last-date");
+      const timeAgoEl = document.getElementById("sync-kpi-time-ago");
+      const liveDot = document.getElementById("sync-live-dot");
+
+      if (totalEl) totalEl.textContent = data.total_procesos_sqlite;
+      if (headerBadge) headerBadge.textContent = `${data.total_procesos_sqlite} Proc.`;
+
+      // Freshness
+      if (freshnessEl && liveDot) {
+        if (data.requiere_sincronizacion_12h) {
+          freshnessEl.innerHTML = `<span class="badge-freshness warn">Requiere Ingesta</span>`;
+          liveDot.className = "sync-live-dot warn";
+        } else {
+          freshnessEl.innerHTML = `<span class="badge-freshness ok">Al día (&lt; 12h)</span>`;
+          liveDot.className = "sync-live-dot";
+        }
+      }
+
+      // Last sync date
+      if (data.ultima_sincronizacion) {
+        const d = new Date(data.ultima_sincronizacion);
+        if (lastDateEl) {
+          lastDateEl.textContent = d.toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" });
+        }
+        if (timeAgoEl) {
+          timeAgoEl.textContent = d.toLocaleDateString("es-CO", { month: "short", day: "numeric" });
+        }
+      } else {
+        if (lastDateEl) lastDateEl.textContent = "Sin sincronizar";
+        if (timeAgoEl) timeAgoEl.textContent = "Pendiente";
+      }
+
+      if (isUserRefresh && refreshBtn) {
+        refreshBtn.style.color = "#10b981";
+        setTimeout(() => { refreshBtn.style.color = ""; }, 800);
+      }
+
+    } catch (err) {
+      console.warn("No se pudo obtener el estado de sincronización:", err);
+    }
+  }
+}
+
