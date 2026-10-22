@@ -1,6 +1,5 @@
 // ==========================================================================
-// SECOP AI · Client Application Engine
-// Crafted with Emil Kowalski Micro-interactions & Tactile UI Principles
+// SECOP AI · STOIKA APPLICATION ENGINE (SHELBY BRAND OS)
 // ==========================================================================
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -9,18 +8,17 @@ document.addEventListener("DOMContentLoaded", () => {
   initChat();
 });
 
-// SVG Icons Library for clean rendering without emojis
+// Clean SVGs aligned with Stoika / Shelby Brand OS
 const ICONS = {
   user: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
   ai: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 0 1 4 4v1a4 4 0 0 1-4 4 4 4 0 0 1-4-4V6a4 4 0 0 1 4-4Z"/><path d="M16 14a8 8 0 0 1 8 8H0a8 8 0 0 1 8-8"/></svg>`,
   check: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
   alert: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
   tool: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>`,
-  arrowRight: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`,
-  contract: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`
+  arrowRight: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`
 };
 
-// Format currency as Colombian Pesos (COP)
+// Formato de moneda COP
 function formatCOP(num) {
   if (num === null || num === undefined) return "$0";
   const n = typeof num === "string" ? parseFloat(num) : num;
@@ -32,7 +30,7 @@ function formatCOP(num) {
   }).format(n);
 }
 
-// Markdown parser for executive memos
+// Markdown parser editorial
 function renderMarkdown(text) {
   if (!text) return "";
   let html = text
@@ -40,13 +38,13 @@ function renderMarkdown(text) {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
 
-  // Bold
+  // Negrita
   html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
   
-  // Inline code tags
-  html = html.replace(/`(.*?)`/g, "<code style='background: rgba(255,255,255,0.08); padding: 2px 6px; border-radius: 4px; font-family: var(--font-mono); font-size: 0.85em; color: #cbd5e1;'>$1</code>");
+  // Código inline
+  html = html.replace(/`(.*?)`/g, "<code style='background: #ede9e0; color: #141715; padding: 2px 6px; border-radius: 4px; font-family: var(--font-mono); font-size: 0.85em;'>$1</code>");
 
-  // Tables
+  // Tablas
   const lines = html.split("\n");
   let inTable = false;
   let tableHtml = "";
@@ -65,12 +63,12 @@ function renderMarkdown(text) {
       const cells = line.split("|").slice(1, -1);
       const isHeader = !tableHtml.includes("<tbody>");
       if (isHeader && !tableHtml.includes("<thead>")) {
-        tableHtml += "<thead><tr style='border-bottom: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.03);'>";
-        cells.forEach(c => tableHtml += `<th style='padding: 8px 12px; text-align: left; font-weight: 600; color: #f8fafc;'>${c.trim()}</th>`);
+        tableHtml += "<thead><tr style='border-bottom: 2px solid #d9d5cb; background: #eae6dd;'>";
+        cells.forEach(c => tableHtml += `<th style='padding: 8px 12px; text-align: left; font-weight: 700; color: #141715;'>${c.trim()}</th>`);
         tableHtml += "</tr></thead><tbody>";
       } else {
-        tableHtml += "<tr style='border-bottom: 1px solid rgba(255,255,255,0.05);'>";
-        cells.forEach(c => tableHtml += `<td style='padding: 8px 12px; color: var(--text-secondary);'>${c.trim()}</td>`);
+        tableHtml += "<tr style='border-bottom: 1px solid #e5e2da;'>";
+        cells.forEach(c => tableHtml += `<td style='padding: 8px 12px; color: #3b423d;'>${c.trim()}</td>`);
         tableHtml += "</tr>";
       }
     } else {
@@ -88,7 +86,7 @@ function renderMarkdown(text) {
     processedLines.push(tableHtml);
   }
 
-  // Lists & Paragraphs
+  // Listas y párrafos
   let finalHtml = "";
   let inList = false;
   for (let l of processedLines) {
@@ -121,7 +119,7 @@ function renderMarkdown(text) {
 }
 
 // --------------------------------------------------------------------------
-// 1. CARGA DE PERFIL EMPRESARIAL Y RUP
+// 1. CARGA DE PERFIL EMPRESARIAL
 // --------------------------------------------------------------------------
 async function initCompanyProfile() {
   try {
@@ -132,14 +130,13 @@ async function initCompanyProfile() {
     const ind = data.indicadores;
 
     document.getElementById("comp-name").textContent = perfil.razon_social || "Ingeniería y Mantenimiento del Pacífico S.A.S.";
-    
-    const nitContainer = document.getElementById("comp-nit");
-    nitContainer.querySelector("span").textContent = `NIT: ${perfil.nit}`;
-    
-    const cityContainer = document.getElementById("comp-city");
-    cityContainer.querySelector("span").textContent = `${perfil.ciudad}, ${perfil.departamento}`;
+    document.getElementById("comp-nit").textContent = `NIT: ${perfil.nit}`;
+    document.getElementById("comp-city").textContent = `${perfil.ciudad}, ${perfil.departamento}`;
+    if (document.getElementById("comp-activity")) {
+      document.getElementById("comp-activity").textContent = perfil.actividad;
+    }
 
-    // Indicadores financieros con formato numérico tabular
+    // Indicadores financieros con números tabulares
     document.getElementById("val-capital").textContent = formatCOP(ind.capital_de_trabajo);
     document.getElementById("val-liquidez").textContent = ind.indice_liquidez;
     document.getElementById("val-endeudamiento").textContent = `${ind.indice_endeudamiento_pct}%`;
@@ -201,7 +198,7 @@ async function initProcessesList() {
     document.getElementById("proceso-counter").textContent = `${allProcesses.length} contratos`;
     renderProcesses(allProcesses);
 
-    // Búsqueda instantánea con debouncing táctil
+    // Búsqueda instantánea
     const searchInput = document.getElementById("process-search-input");
     searchInput.addEventListener("input", (e) => {
       const q = e.target.value.toLowerCase().trim();
@@ -227,7 +224,7 @@ function renderProcesses(list) {
 
   if (list.length === 0) {
     container.innerHTML = `
-      <div style="color: var(--text-tertiary); font-size: 0.8rem; text-align: center; padding: 28px 12px;">
+      <div style="color: #727a74; font-size: 0.8rem; text-align: center; padding: 28px 12px;">
         No se encontraron procesos coincidentes
       </div>
     `;
@@ -237,7 +234,6 @@ function renderProcesses(list) {
   list.forEach((p, index) => {
     const card = document.createElement("div");
     card.className = "process-card";
-    // Asignación de delay escalonado Emil Kowalski
     card.style.setProperty("--stagger", index);
 
     const ref = p.referencia_del_proceso || p.id_del_proceso;
@@ -246,12 +242,14 @@ function renderProcesses(list) {
     const ciudad = p.ciudad_entidad || p.departamento_entidad || "Nacional";
 
     card.innerHTML = `
-      <div class="process-ref">${ref}</div>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span class="process-ref">${ref}</span>
+        <span class="process-tag">${modalidad}</span>
+      </div>
       <div class="process-entity">${p.entidad || "Entidad Estatal"}</div>
       <div class="process-budget tabular-nums">${precio}</div>
       <div class="process-tags">
         <span class="process-tag">${ciudad}</span>
-        <span class="process-tag">${modalidad}</span>
       </div>
       <button class="analyze-btn" data-ref="${ref}">
         ${ICONS.arrowRight}
@@ -259,7 +257,6 @@ function renderProcesses(list) {
       </button>
     `;
 
-    // Click handler táctil
     const analyzeBtn = card.querySelector(".analyze-btn");
     analyzeBtn.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -277,13 +274,13 @@ function initChat() {
   const form = document.getElementById("chat-form");
   const input = document.getElementById("user-input");
 
-  // Auto-ajuste de altura de textarea
+  // Auto-ajuste de altura
   input.addEventListener("input", () => {
     input.style.height = "auto";
     input.style.height = `${Math.min(input.scrollHeight, 120)}px`;
   });
 
-  // Enter envía, Shift+Enter inserta salto de línea
+  // Enter envía, Shift+Enter inserta salto
   input.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -291,7 +288,7 @@ function initChat() {
     }
   });
 
-  // Sugerencias de prompt
+  // Píldoras de sugerencias
   document.querySelectorAll(".prompt-pill").forEach(btn => {
     btn.addEventListener("click", () => {
       const p = btn.getAttribute("data-prompt");
@@ -323,15 +320,15 @@ async function sendPrompt(pregunta) {
   chatContainer.appendChild(userMsg);
   chatContainer.scrollTop = chatContainer.scrollHeight;
 
-  // 2. Indicador de Análisis
+  // 2. Indicador de Carga Stoika
   const loadingMsg = document.createElement("div");
   loadingMsg.className = "message-wrapper message-ai";
   loadingMsg.id = "loading-message";
   loadingMsg.innerHTML = `
     <div class="avatar avatar-ai" aria-hidden="true">${ICONS.ai}</div>
     <div class="bubble">
-      <div style="color: var(--text-secondary); font-size: 0.82rem; margin-bottom: 4px;">
-        Consultando herramientas de SECOP II y verificando perfil financiero...
+      <div style="color: var(--c-olive); font-size: 0.82rem; font-weight: 500; margin-bottom: 4px;">
+        Consultando dataset SECOP II y verificando perfil financiero...
       </div>
       <div class="typing-dots">
         <div class="dot"></div>
@@ -360,7 +357,7 @@ async function sendPrompt(pregunta) {
     const data = await res.json();
     loadingMsg.remove();
 
-    // 3. Banner de Decisión Ejecutiva
+    // 3. Banner de Decisión Stoika
     let decisionHtml = "";
     if (data.decision === "VIABLE") {
       decisionHtml = `
@@ -426,12 +423,12 @@ async function sendPrompt(pregunta) {
     const errorMsg = document.createElement("div");
     errorMsg.className = "message-wrapper message-ai";
     errorMsg.innerHTML = `
-      <div class="avatar avatar-ai" style="background: rgba(244, 63, 94, 0.2); border-color: rgba(244, 63, 94, 0.4); color: #fb7185;" aria-hidden="true">
+      <div class="avatar avatar-ai" style="background: var(--c-danger-bg); border-color: rgba(192, 92, 84, 0.4); color: var(--c-danger);" aria-hidden="true">
         ${ICONS.alert}
       </div>
-      <div class="bubble" style="border-color: rgba(244, 63, 94, 0.3);">
-        <div style="font-weight: 600; color: #fb7185; margin-bottom: 4px;">Aviso del Sistema</div>
-        <div style="color: var(--text-secondary); font-size: 0.84rem;">${error.message}</div>
+      <div class="bubble" style="border-color: rgba(192, 92, 84, 0.4);">
+        <div style="font-family: var(--font-display); font-weight: 700; color: var(--c-danger); margin-bottom: 4px;">Aviso del Sistema</div>
+        <div style="color: #444c46; font-size: 0.84rem;">${error.message}</div>
       </div>
     `;
     chatContainer.appendChild(errorMsg);
