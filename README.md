@@ -28,8 +28,8 @@ El sistema evalua procesos del SECOP II cruzando los requerimientos de los plieg
 1. Clonar el repositorio y acceder a la carpeta:
 
 ```bash
-git clone https://github.com/luiscadn/taller_agente.git
-cd taller_agente
+git clone https://github.com/luiscadn/secop-ai-agente-licitaciones.git
+cd secop-ai-agente-licitaciones
 ```
 
 2. Crear y activar el entorno virtual:
