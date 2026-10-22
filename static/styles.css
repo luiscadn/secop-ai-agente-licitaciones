@@ -1136,6 +1136,278 @@ html, body {
   line-height: 1.35;
 }
 
+/* ==========================================================================
+   Drawer Profile Editor Form Styles
+   ========================================================================== */
+
+.drawer-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.drawer-edit-toggle-btn {
+  background: var(--c-carbon);
+  border: 1px solid var(--c-line-dark);
+  color: var(--c-ivory);
+  border-radius: var(--r-pill);
+  padding: 4px 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.drawer-edit-toggle-btn:hover {
+  background: #2a312d;
+  border-color: var(--c-bronze);
+  color: #ffffff;
+}
+
+.drawer-edit-toggle-btn.active {
+  background: rgba(160, 114, 76, 0.2);
+  border-color: var(--c-bronze);
+  color: var(--c-bronze);
+}
+
+.drawer-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-section-title {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--c-bronze);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--c-line-dark);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.form-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #9aa19b;
+}
+
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.drawer-input,
+.drawer-textarea {
+  background: rgba(15, 18, 16, 0.8);
+  border: 1px solid var(--c-line-dark);
+  color: #ffffff;
+  border-radius: var(--r-sm);
+  padding: 8px 10px;
+  font-size: 0.78rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+.drawer-input:focus,
+.drawer-textarea:focus {
+  border-color: var(--c-bronze);
+  box-shadow: 0 0 0 1px rgba(160, 114, 76, 0.3);
+}
+
+.drawer-textarea {
+  resize: vertical;
+  line-height: 1.4;
+}
+
+/* Live KPI Preview inside Form */
+.live-kpi-preview {
+  background: rgba(31, 36, 33, 0.7);
+  border: 1px dashed var(--c-line-dark);
+  border-radius: var(--r-sm);
+  padding: 8px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+}
+
+.live-kpi-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #9aa19b;
+}
+
+.live-kpi-item strong {
+  color: #34d399;
+  font-family: var(--font-mono);
+}
+
+/* Quick UNSPSC Chips */
+.quick-chips-label {
+  font-size: 0.65rem;
+  color: #727a73;
+  margin-top: 4px;
+}
+
+.quick-chips-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 4px;
+}
+
+.quick-chip {
+  background: rgba(31, 36, 33, 0.6);
+  border: 1px solid var(--c-line-dark);
+  color: var(--c-ivory);
+  font-size: 0.66rem;
+  padding: 3px 7px;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.quick-chip:hover {
+  background: var(--c-carbon);
+  border-color: var(--c-bronze);
+  color: #ffffff;
+}
+
+/* Contract Edit Cards */
+.btn-add-contract {
+  background: transparent;
+  border: 1px solid var(--c-line-dark);
+  color: var(--c-bronze);
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.btn-add-contract:hover {
+  background: rgba(160, 114, 76, 0.15);
+  border-color: var(--c-bronze);
+}
+
+.edit-contracts-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.contract-edit-card {
+  background: rgba(31, 36, 33, 0.5);
+  border: 1px solid var(--c-line-dark);
+  border-radius: var(--r-sm);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+}
+
+.contract-edit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--c-bronze);
+}
+
+.btn-remove-contract {
+  background: transparent;
+  border: none;
+  color: #f87171;
+  font-size: 0.7rem;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: var(--r-xs);
+}
+
+.btn-remove-contract:hover {
+  background: rgba(248, 113, 113, 0.15);
+}
+
+/* Form Action Buttons */
+.form-actions-bar {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--c-line-dark);
+}
+
+.btn-primary-save {
+  flex: 2;
+  background: #ffffff;
+  color: #141715;
+  border: 1px solid #ffffff;
+  padding: 9px 14px;
+  border-radius: var(--r-sm);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.btn-primary-save:hover {
+  background: #eae6dd;
+  border-color: #eae6dd;
+}
+
+.btn-secondary-cancel {
+  flex: 1;
+  background: transparent;
+  color: var(--c-ivory);
+  border: 1px solid var(--c-line-dark);
+  padding: 9px 14px;
+  border-radius: var(--r-sm);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.btn-secondary-cancel:hover {
+  background: var(--c-carbon);
+  color: #ffffff;
+}
+
+.save-status-msg {
+  padding: 8px 12px;
+  border-radius: var(--r-sm);
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.save-status-msg.success {
+  background: var(--c-go-bg);
+  border: 1px solid var(--c-go-border);
+  color: var(--c-go);
+}
+
+.save-status-msg.error {
+  background: var(--c-nogo-bg);
+  border: 1px solid var(--c-nogo-border);
+  color: var(--c-nogo);
+}
+
 /* Responsive adjustments */
 @media (max-width: 1024px) {
   .workspace-grid {

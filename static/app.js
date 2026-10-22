@@ -11,12 +11,13 @@ let savedProcesses = new Set(JSON.parse(localStorage.getItem("secop_tracked_proc
 let companyProfile = null;
 let companyIndicators = null;
 
-// Company Financial Constants
-const WORKING_CAPITAL = 182000000; // $182.0M COP
-const COMPANY_UNSPSC = ["72141000", "81101500", "72101500", "72152700", "72102900"];
+// Company Financial State (Reactive to Company Profile)
+let workingCapital = 182000000; // $182.0M COP default
+let companyUnspsc = ["72141000", "81101500", "72101500", "72152700", "72102900"];
 
 document.addEventListener("DOMContentLoaded", () => {
   initDrawer();
+  initCompanyEditor();
   initFilters();
   initSearch();
   initTracking();
@@ -88,6 +89,12 @@ async function loadData() {
       const empData = await empRes.json();
       companyProfile = empData.perfil;
       companyIndicators = empData.indicadores;
+      if (companyIndicators?.capital_de_trabajo) {
+        workingCapital = companyIndicators.capital_de_trabajo;
+      }
+      if (companyProfile?.rup?.codigos_unspsc) {
+        companyUnspsc = companyProfile.rup.codigos_unspsc;
+      }
       renderCompanyDrawer(companyProfile, companyIndicators);
     }
 
@@ -123,7 +130,14 @@ function evaluateProcessTriage(p) {
   const duracion = parseInt(p.duracion) || 0;
   const ref = p.referencia_del_proceso || p.id_del_proceso;
   const categoria = (p.codigo_principal_de_categoria || "").replace(/^V\d+\./, "");
-  const unspscMatch = COMPANY_UNSPSC.some(c => categoria.startsWith(c.substring(0, 4)));
+  const unspscMatch = companyUnspsc.some(c => categoria.startsWith(c.substring(0, 4)) || c.startsWith(categoria.substring(0, 4)));
+
+  // Calculate total certified experience in company profile
+  const totalExp = (companyProfile?.experiencia || []).reduce((acc, e) => acc + (parseFloat(e.valor) || 0), 0);
+  const expLabel = totalExp > 0 
+    ? `Acredita contratos afines certificados por ${formatCOP(totalExp)}.` 
+    : "Sin experiencia contractual registrada en perfil.";
+  let expCheck = { status: totalExp > 0 ? "ok" : "warn", label: "Experiencia Contractual", desc: expLabel };
 
   let status = "review"; // "go" | "review" | "nogo"
   let score = 75;
@@ -131,7 +145,6 @@ function evaluateProcessTriage(p) {
   let reason = "";
   let financialCheck = { status: "warn", label: "Capacidad Financiera", desc: "" };
   let unspscCheck = { status: "warn", label: "Clasificación UNSPSC", desc: "" };
-  let expCheck = { status: "ok", label: "Experiencia Contractual", desc: "Acredita contratos afines en obras civiles y vías por $1,230M COP." };
 
   // Rule 1: Plazo 0 días o Presupuesto $0 (Anomalía en SECOP II)
   if (duracion === 0 || precio <= 0) {
@@ -144,33 +157,33 @@ function evaluateProcessTriage(p) {
     financialCheck = { status: "fail", label: "Capacidad Financiera", desc: "Presupuesto $0 o inconsistente en plataforma." };
     unspscCheck = { status: "warn", label: "Clasificación UNSPSC", desc: "Verificar pliegos definitivos." };
   }
-  // Rule 2: Presupuesto accesible cubierto ampliamente por capital ($182M)
-  else if (precio <= 200000000) {
-    const coverage = ((WORKING_CAPITAL / precio) * 100).toFixed(0);
+  // Rule 2: Presupuesto accesible cubierto ampliamente por capital
+  else if (precio <= workingCapital * 1.1) {
+    const coverage = ((workingCapital / precio) * 100).toFixed(0);
     status = "go";
     score = Math.min(96, 88 + (coverage > 100 ? 8 : 0));
     verdictTitle = `VIABLE · GO (${score}% MATCH HABILITANTE)`;
-    reason = `Capital de trabajo disponible ($182.0M) cubre el ${coverage}% del presupuesto oficial.`;
+    reason = `Capital de trabajo disponible (${formatCOP(workingCapital)}) cubre el ${coverage}% del presupuesto oficial.`;
     financialCheck = { status: "ok", label: "Capacidad Financiera", desc: `Capital disponible cubre holgadamente el ${coverage}% del valor oficial.` };
-    unspscCheck = { status: unspscMatch ? "ok" : "warn", label: "Clasificación UNSPSC", desc: unspscMatch ? "Código UNSPSC registrado en RUP de la empresa." : "Afinidad técnica con servicios de ingeniería." };
+    unspscCheck = { status: unspscMatch ? "ok" : "warn", label: "Clasificación UNSPSC", desc: unspscMatch ? "Código UNSPSC registrado en RUP de la empresa." : "Verificar afinidad de código en pliegos." };
   }
-  // Rule 3: Presupuesto intermedio (e.g. FLO-INFRA-SA-MC-007-2025 entre 200M y 380M)
-  else if (precio <= 380000000) {
-    const coverage = ((WORKING_CAPITAL / precio) * 100).toFixed(1);
+  // Rule 3: Presupuesto intermedio (entre 1.1x y 2.1x el capital de trabajo)
+  else if (precio <= workingCapital * 2.1) {
+    const coverage = ((workingCapital / precio) * 100).toFixed(1);
     status = "review";
     score = 78;
     verdictTitle = "VIABLE CON CONSORCIO O UNIÓN TEMPORAL";
     reason = `Capital cubre el ${coverage}% del presupuesto. Se recomienda consorcio para alcanzar el 100% exigido.`;
-    financialCheck = { status: "warn", label: "Capacidad Financiera", desc: `Capital ($182M) cubre el ${coverage}% del contrato. Requiere socio consorcial.` };
-    unspscCheck = { status: unspscMatch ? "ok" : "warn", label: "Clasificación UNSPSC", desc: unspscMatch ? "Código UNSPSC registrado en RUP." : "Código de categoría afín a obras civiles." };
+    financialCheck = { status: "warn", label: "Capacidad Financiera", desc: `Capital (${formatCOP(workingCapital)}) cubre el ${coverage}% del contrato. Requiere socio consorcial.` };
+    unspscCheck = { status: unspscMatch ? "ok" : "warn", label: "Clasificación UNSPSC", desc: unspscMatch ? "Código UNSPSC registrado en RUP." : "Verificar código de categoría en pliegos definitivos." };
   }
-  // Rule 4: Presupuestos muy grandes (> 400M hasta 2.9B COP)
+  // Rule 4: Presupuestos muy grandes (> 2.1x el capital)
   else {
-    const coverage = ((WORKING_CAPITAL / precio) * 100).toFixed(1);
+    const coverage = ((workingCapital / precio) * 100).toFixed(1);
     status = "nogo";
     score = 48;
     verdictTitle = "NO RECOMENDADO INDIVIDUAL (EXCEDE CAPACIDAD)";
-    reason = `Presupuesto elevado ($${(precio / 1e6).toFixed(0)}M COP). Tu capital de trabajo ($182M) cubre solo el ${coverage}%.`;
+    reason = `Presupuesto elevado (${formatCOP(precio)}). Tu capital de trabajo (${formatCOP(workingCapital)}) cubre solo el ${coverage}%.`;
     financialCheck = { status: "fail", label: "Capacidad Financiera", desc: `Capital insuficiente para proponente individual (cubre solo el ${coverage}%).` };
     unspscCheck = { status: "warn", label: "Clasificación UNSPSC", desc: "Requiere validación de consorcio estructurado." };
   }
@@ -660,5 +673,277 @@ function renderCompanyDrawer(perfil, ind) {
       <div class="exp-desc">${exp.objeto}</div>
     `;
     expContainer.appendChild(item);
+  });
+}
+
+// --------------------------------------------------------------------------
+// 7. INTERACTIVE COMPANY PROFILE EDITOR
+// --------------------------------------------------------------------------
+function initCompanyEditor() {
+  const toggleBtn = document.getElementById("toggle-edit-profile-btn");
+  const cancelBtn = document.getElementById("btn-cancel-edit-profile");
+  const viewMode = document.getElementById("drawer-view-mode");
+  const editMode = document.getElementById("drawer-edit-mode");
+  const editLabel = document.getElementById("edit-toggle-label");
+  const form = document.getElementById("form-edit-empresa");
+  const addContractBtn = document.getElementById("btn-add-contract-row");
+  const contractsContainer = document.getElementById("edit-contracts-container");
+  const statusMsg = document.getElementById("save-profile-status");
+
+  let isEditing = false;
+  let formContracts = [];
+
+  function setEditMode(editing) {
+    isEditing = editing;
+    if (editing) {
+      viewMode.style.display = "none";
+      editMode.style.display = "block";
+      toggleBtn.classList.add("active");
+      editLabel.textContent = "Ver Perfil";
+      populateForm();
+    } else {
+      viewMode.style.display = "block";
+      editMode.style.display = "none";
+      toggleBtn.classList.remove("active");
+      editLabel.textContent = "Editar Perfil";
+      statusMsg.style.display = "none";
+    }
+  }
+
+  toggleBtn.addEventListener("click", () => {
+    setEditMode(!isEditing);
+  });
+
+  cancelBtn.addEventListener("click", () => {
+    setEditMode(false);
+  });
+
+  function populateForm() {
+    if (!companyProfile) return;
+    document.getElementById("input-razon-social").value = companyProfile.razon_social || "";
+    document.getElementById("input-nit").value = companyProfile.nit || "";
+    document.getElementById("input-ciudad").value = companyProfile.ciudad || "";
+    document.getElementById("input-departamento").value = companyProfile.departamento || "";
+    document.getElementById("input-tamano").value = companyProfile.tamano || "Pequeña empresa";
+    document.getElementById("input-actividad").value = companyProfile.actividad || "";
+
+    const ef = companyProfile.estados_financieros || {};
+    document.getElementById("input-activo-corriente").value = ef.activo_corriente || 442000000;
+    document.getElementById("input-pasivo-corriente").value = ef.pasivo_corriente || 260000000;
+    document.getElementById("input-activo-total").value = ef.activo_total || 1150000000;
+    document.getElementById("input-pasivo-total").value = ef.pasivo_total || 713000000;
+    document.getElementById("input-patrimonio").value = ef.patrimonio || 437000000;
+    document.getElementById("input-utilidad-operacional").value = ef.utilidad_operacional || 46000000;
+    document.getElementById("input-gastos-intereses").value = ef.gastos_de_intereses || 18400000;
+
+    const unspscArr = companyProfile.rup?.codigos_unspsc || [];
+    document.getElementById("input-unspsc").value = unspscArr.join(", ");
+
+    formContracts = JSON.parse(JSON.stringify(companyProfile.experiencia || []));
+    renderEditContracts();
+    updateLiveKpi();
+  }
+
+  // Live KPI preview recalculation
+  function updateLiveKpi() {
+    const ac = parseFloat(document.getElementById("input-activo-corriente").value) || 0;
+    const pc = parseFloat(document.getElementById("input-pasivo-corriente").value) || 0;
+    const at = parseFloat(document.getElementById("input-activo-total").value) || 0;
+    const pt = parseFloat(document.getElementById("input-pasivo-total").value) || 0;
+
+    const cap = ac - pc;
+    const liq = pc > 0 ? (ac / pc).toFixed(2) : "0.00";
+    const end = at > 0 ? ((pt / at) * 100).toFixed(1) : "0.0";
+
+    document.getElementById("live-kpi-capital").textContent = formatCOP(cap);
+    document.getElementById("live-kpi-liquidez").textContent = liq;
+    document.getElementById("live-kpi-endeudamiento").textContent = `${end}%`;
+  }
+
+  // Attach live calculation to inputs
+  ["input-activo-corriente", "input-pasivo-corriente", "input-activo-total", "input-pasivo-total"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener("input", updateLiveKpi);
+  });
+
+  // Quick chips click
+  document.querySelectorAll(".quick-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      const code = chip.dataset.code;
+      const input = document.getElementById("input-unspsc");
+      const current = input.value.split(",").map(c => c.trim()).filter(Boolean);
+      if (!current.includes(code)) {
+        current.push(code);
+        input.value = current.join(", ");
+      }
+    });
+  });
+
+  // Add contract row
+  addContractBtn.addEventListener("click", () => {
+    formContracts.push({
+      id: `EXP-${formContracts.length + 1}`,
+      contratante: "",
+      objeto: "",
+      anio: new Date().getFullYear(),
+      valor: 100000000,
+      codigos_unspsc: ["81111500"]
+    });
+    renderEditContracts();
+  });
+
+  function renderEditContracts() {
+    contractsContainer.innerHTML = "";
+    formContracts.forEach((exp, idx) => {
+      const card = document.createElement("div");
+      card.className = "contract-edit-card";
+      card.innerHTML = `
+        <div class="contract-edit-header">
+          <span>Contrato #${idx + 1} (${exp.id || 'EXP'})</span>
+          <button type="button" class="btn-remove-contract" data-idx="${idx}">✕ Eliminar</button>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">Cliente / Entidad</label>
+            <input type="text" class="drawer-input contract-field" data-idx="${idx}" data-field="contratante" value="${exp.contratante || ''}" placeholder="Ej: Alcaldía de Cali" required>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Año</label>
+              <input type="number" class="drawer-input contract-field" data-idx="${idx}" data-field="anio" value="${exp.anio || 2024}" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Valor (COP)</label>
+              <input type="number" class="drawer-input contract-field" data-idx="${idx}" data-field="valor" value="${exp.valor || 0}" required>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Objeto del Contrato</label>
+          <input type="text" class="drawer-input contract-field" data-idx="${idx}" data-field="objeto" value="${exp.objeto || ''}" placeholder="Descripción del servicio prestado" required>
+        </div>
+      `;
+      contractsContainer.appendChild(card);
+    });
+
+    // Delete buttons
+    contractsContainer.querySelectorAll(".btn-remove-contract").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        const idx = parseInt(e.target.dataset.idx);
+        formContracts.splice(idx, 1);
+        renderEditContracts();
+      });
+    });
+
+    // Input listeners for contract fields
+    contractsContainer.querySelectorAll(".contract-field").forEach(input => {
+      input.addEventListener("input", (e) => {
+        const idx = parseInt(e.target.dataset.idx);
+        const field = e.target.dataset.field;
+        let val = e.target.value;
+        if (field === "anio" || field === "valor") {
+          val = parseFloat(val) || 0;
+        }
+        if (formContracts[idx]) {
+          formContracts[idx][field] = val;
+        }
+      });
+    });
+  }
+
+  // Handle Form Submit
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const submitBtn = document.getElementById("btn-submit-profile");
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Guardando...";
+
+    try {
+      const unspscList = document.getElementById("input-unspsc").value
+        .split(",")
+        .map(c => c.trim().replace(/^V\d+\./, ""))
+        .filter(c => c.length >= 4);
+
+      const ac = parseFloat(document.getElementById("input-activo-corriente").value) || 0;
+      const pc = parseFloat(document.getElementById("input-pasivo-corriente").value) || 0;
+      const at = parseFloat(document.getElementById("input-activo-total").value) || 0;
+      const pt = parseFloat(document.getElementById("input-pasivo-total").value) || 0;
+      const pat = parseFloat(document.getElementById("input-patrimonio").value) || 0;
+      const uo = parseFloat(document.getElementById("input-utilidad-operacional").value) || 0;
+      const gi = parseFloat(document.getElementById("input-gastos-intereses").value) || 0;
+
+      const newCompanyData = {
+        razon_social: document.getElementById("input-razon-social").value.trim(),
+        nit: document.getElementById("input-nit").value.trim(),
+        ciudad: document.getElementById("input-ciudad").value.trim(),
+        departamento: document.getElementById("input-departamento").value.trim(),
+        tamano: document.getElementById("input-tamano").value,
+        actividad: document.getElementById("input-actividad").value.trim(),
+        rup: {
+          vigente: true,
+          fecha_renovacion: companyProfile?.rup?.fecha_renovacion || "2026-03-15",
+          codigos_unspsc: unspscList
+        },
+        estados_financieros: {
+          corte: companyProfile?.estados_financieros?.corte || "2025-12-31",
+          moneda: "COP",
+          activo_corriente: ac,
+          pasivo_corriente: pc,
+          activo_total: at,
+          pasivo_total: pt,
+          patrimonio: pat,
+          utilidad_operacional: uo,
+          gastos_de_intereses: gi,
+          utilidad_neta: Math.max(0, uo - gi)
+        },
+        experiencia: formContracts
+      };
+
+      const res = await fetch("/api/empresa", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newCompanyData)
+      });
+
+      if (!res.ok) {
+        throw new Error("No se pudo guardar el perfil empresarial");
+      }
+
+      const resData = await res.json();
+      companyProfile = resData.perfil;
+      companyIndicators = resData.indicadores;
+      workingCapital = companyIndicators.capital_de_trabajo;
+      companyUnspsc = companyProfile.rup.codigos_unspsc;
+
+      // Update Drawer View Mode
+      renderCompanyDrawer(companyProfile, companyIndicators);
+
+      // Re-evaluate entire triage across all tenders
+      allProcesses = allProcesses.map(p => evaluateProcessTriage(p));
+      updateTriageCounts();
+      renderTriageList();
+
+      // If active process, re-render detail view with new scores
+      if (activeProcess) {
+        const updatedActive = allProcesses.find(p => (p.referencia_del_proceso || p.id_del_proceso) === (activeProcess.referencia_del_proceso || activeProcess.id_del_proceso));
+        if (updatedActive) selectProcess(updatedActive);
+      }
+
+      statusMsg.className = "save-status-msg success";
+      statusMsg.textContent = "Perfil empresarial guardado exitosamente. Tablero de viabilidad recalculado.";
+      statusMsg.style.display = "block";
+
+      setTimeout(() => {
+        setEditMode(false);
+      }, 1200);
+
+    } catch (err) {
+      statusMsg.className = "save-status-msg error";
+      statusMsg.textContent = `Error: ${err.message}`;
+      statusMsg.style.display = "block";
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Guardar Perfil Empresarial";
+    }
   });
 }

@@ -2,6 +2,7 @@
 import os
 import sys
 import time
+import json
 import threading
 from typing import Optional
 from pathlib import Path
@@ -134,6 +135,23 @@ async def get_empresa():
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/empresa")
+async def update_empresa(datos: dict):
+    """Guarda o actualiza el perfil empresarial en datos/empresa.json."""
+    try:
+        ruta = BASE_DIR / "datos" / "empresa.json"
+        ruta.write_text(json.dumps(datos, indent=2, ensure_ascii=False), encoding="utf-8")
+        indicadores = h.calcular_indicadores()
+        return {
+            "estado": "exitoso",
+            "mensaje": "Perfil empresarial guardado exitosamente",
+            "perfil": datos,
+            "indicadores": indicadores
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error guardando perfil de empresa: {e}")
 
 
 @app.get("/api/procesos")
